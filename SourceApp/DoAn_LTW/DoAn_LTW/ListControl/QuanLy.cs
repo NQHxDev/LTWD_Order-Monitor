@@ -15,9 +15,7 @@ namespace DoAn_LTW.ListControl
         public QuanLy()
         {
             InitializeComponent();
-            this.BackColor = Color.FromArgb(87, 86, 79);
             Label titleLabel = new Label();
-            titleLabel.Text = "Quản lý Bếp";
             titleLabel.Font = new Font("Tahoma", 16, FontStyle.Bold);
             titleLabel.ForeColor = Color.White;
             titleLabel.Height = 50;

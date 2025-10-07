@@ -127,6 +127,7 @@
     <Compile Include="ContextDatabase\OrderMonitor.cs" />
     <Compile Include="ContextDatabase\order_detail.cs" />
     <Compile Include="ContextDatabase\unit.cs" />
+    <Compile Include="DataCache.cs" />
     <Compile Include="ListControl\DanhSachOder.cs">
       <SubType>UserControl</SubType>
     </Compile>

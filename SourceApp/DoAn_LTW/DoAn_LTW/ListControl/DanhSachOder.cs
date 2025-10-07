@@ -1,8 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using DoAn_LTW.ContextDatabase;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Entity;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -20,9 +22,8 @@ namespace DoAn_LTW.ListControl
         public DanhSachOder()
         {
             InitializeComponent();
-            this.BackColor = Color.FromArgb(87, 86, 79);
+
             Label titleLabel = new Label();
-            titleLabel.Text = "Danh sách Order";
             titleLabel.Font = new Font("Tahoma", 16, FontStyle.Bold);
             titleLabel.ForeColor = Color.White;
             titleLabel.Height = 50;
@@ -38,9 +39,6 @@ namespace DoAn_LTW.ListControl
             flowPanel.FlowDirection = FlowDirection.LeftToRight;
             this.Controls.Add(flowPanel);
 
-            loadFoodList();
-
-            // Subcribe WebSocket event
             WebSocketManager.OnMessageReceived += HandleWebSocketMessage;
         }
 
@@ -74,7 +72,7 @@ namespace DoAn_LTW.ListControl
             orderPanel.Height = 400;
             orderPanel.BorderStyle = BorderStyle.None;
 
-            // Tiêu đề (Order ID)
+            // Tiêu đề
             Label lblTitle = new Label();
             lblTitle.Text = $"ORDER #{order["orderId"]}";
             lblTitle.Font = new Font("Segoe UI", 12, FontStyle.Bold);
@@ -98,7 +96,7 @@ namespace DoAn_LTW.ListControl
             separator.BackColor = Color.FromArgb(240, 240, 240);
             separator.Dock = DockStyle.Top;
 
-            // Panel chứa danh sách món ăn
+            // Danh sách món ăn
             FlowLayoutPanel itemsPanel = new FlowLayoutPanel();
             itemsPanel.FlowDirection = FlowDirection.TopDown;
             itemsPanel.WrapContents = false;
@@ -107,7 +105,7 @@ namespace DoAn_LTW.ListControl
 
             foreach (var item in order["cart"])
             {
-                string foodName = GetFoodNameById((int)item["id"]);
+                string foodName = DataCache.GetFoodName((int)item["id"]);
                 int qty = (int)item["quantity"];
                 int price = (int)item["price"];
                 int total = price * qty;
@@ -144,7 +142,7 @@ namespace DoAn_LTW.ListControl
 
             // Nút Nhận đơn
             Button btnNhanDon = new Button();
-            btnNhanDon.Text = "NHẬN ĐƠN";
+            btnNhanDon.Text = "Nhận Đơn";
             btnNhanDon.Dock = DockStyle.Bottom;
             btnNhanDon.Height = 38;
             btnNhanDon.BackColor = Color.FromArgb(76, 175, 80);
@@ -153,11 +151,31 @@ namespace DoAn_LTW.ListControl
             btnNhanDon.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             btnNhanDon.FlatAppearance.BorderSize = 0;
 
-            btnNhanDon.Click += (s, e) =>
+            btnNhanDon.Click += async (s, e) =>
             {
-                btnNhanDon.Text = "ĐÃ NHẬN";
+                btnNhanDon.Text = "Đã Nhận";
                 btnNhanDon.Enabled = false;
                 btnNhanDon.BackColor = Color.FromArgb(120, 120, 120);
+
+                var allIngredients = new List<food_ingredient>();
+
+                foreach (var item in order["cart"])
+                {
+                    int foodId = (int)item["id"];
+                    var ingredients = GetIngredientsByFoodId(foodId);
+                    allIngredients.AddRange(ingredients);
+                }
+
+                var parentForm = this.FindForm();
+                var dangThucHienPanel = FindDangThucHienPanel(parentForm);
+
+                if (dangThucHienPanel != null)
+                {
+                    dangThucHienPanel.AddOrder(order, allIngredients);
+                }
+
+                await Task.Delay(3000);
+                flowPanel.Controls.Remove(orderPanel);
             };
 
             orderPanel.Controls.Add(btnNhanDon);
@@ -167,34 +185,48 @@ namespace DoAn_LTW.ListControl
             orderPanel.Controls.Add(lblCustomer);
             orderPanel.Controls.Add(lblTitle);
 
-            // Thêm panel vào flowPanel
             flowPanel.Controls.Add(orderPanel);
+        }
+
+        private DangThucHien FindDangThucHienPanel(Control parent)
+        {
+            foreach (Control control in parent.Controls)
+            {
+                if (control is DangThucHien)
+                    return (DangThucHien)control;
+
+                var found = FindDangThucHienPanel(control);
+                if (found != null)
+                    return found;
+            }
+            return null;
+        }
+
+        private List<food_ingredient> GetIngredientsByFoodId(int foodId)
+        {
+            try
+            {
+                using (var context = new OrderMonitor())
+                {
+                    return context.food_ingredient
+                        .Where(fi => fi.food_id == foodId)
+                        .Include(fi => fi.item)
+                        .Include(fi => fi.item.unit)
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"GetIngredientsByFoodId error for food {foodId}: " + ex.Message);
+                return new List<food_ingredient>();
+            }
         }
 
         private void Log(string message)
         {
             string logPath = Application.StartupPath + "\\ws_log.txt";
+
             System.IO.File.AppendAllText(logPath, DateTime.Now + " - " + message + Environment.NewLine);
-        }
-
-        private void loadFoodList()
-        {
-            try
-            {
-                ConnectDB connection = new ConnectDB();
-                listFood = connection.loadFoodList();
-            }
-            catch (Exception ex)
-            {
-                Log("LoadFoodList error: " + ex.Message);
-            }
-        }
-
-        private string GetFoodNameById(int id)
-        {
-            if (listFood.ContainsKey(id))
-                return listFood[id];
-            return $"Món ID: {id}";
         }
     }
 }
