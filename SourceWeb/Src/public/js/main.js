@@ -185,7 +185,8 @@ if (menuFood) {
       }
       tagListFood.innerHTML = "";
       listFood.forEach((itemFood, index) => {
-        const safeId = itemFood.id ?? `food-${index}`;
+        const safeId = itemFood.id;
+
         let ribbonHtml = "";
         switch (itemFood.status) {
           case 1:
@@ -241,7 +242,7 @@ if (menuFood) {
             console.error("Food item not found for index:", idx);
             return;
           }
-          const foodId = food.ID ?? `food-${idx}`;
+          const foodId = Number(food.id);
           const unitPrice = Number(food.price) || 0;
 
           const exist = cart.find((i) => i.id === foodId);
@@ -255,6 +256,7 @@ if (menuFood) {
               quantity: qty,
             });
           }
+
           showToast(`Đã thêm "${food.name}" vào giỏ hàng`, "success");
           updateCartUI();
         });
