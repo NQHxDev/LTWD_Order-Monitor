@@ -1,18 +1,22 @@
 const connect = require("../configs/connectDB");
 const { broadcastOrder } = require("../middlewares/wsServer");
 
-//! Method GET
+//! GET: Trang chủ
 const indexPage = (req, res) => {
   res.render("index");
 };
 
-//! Method GET DB
+//! GET: Lấy danh sách món ăn
 const getListFood = async (req, res) => {
   try {
-    // Status 0: Bthg, 1: New, 2: Sellest, 3: Sale, 4: Limited, 5: Hết
-    const [listFood] = await connect.query(`
-      SELECT ID, name, status, price, created_at
-      FROM list_food
+    const result = await connect.executeQuery(`
+      SELECT 
+        food_id AS id, 
+        name, 
+        status, 
+        price, 
+        created_at
+      FROM food
       ORDER BY 
         CASE status
           WHEN 3 THEN 1
@@ -26,60 +30,78 @@ const getListFood = async (req, res) => {
 
     res.json({
       success: true,
-      data: listFood,
+      data: result,
     });
   } catch (error) {
-    console.error("Error loading List Food:", error);
+    console.error("❌ Lỗi tải danh sách món ăn:", error);
     res.status(500).json({
       success: false,
       data: [],
-      message: "Error loading List Food",
+      message: "Lỗi tải danh sách món ăn",
     });
   }
 };
 
-//! Method POST
+//! POST: Tạo đơn hàng mới
 const postListFood = async (req, res) => {
-  const connection = await connect.getConnection();
-  try {
-    const { customer_name, customer_phone, note, total_price, cart } = req.body;
+  const pool = await connect.createPool();
+  const transaction = new connect.sql.Transaction(pool);
 
-    if (!customer_name || !customer_phone) {
-      return res
-        .status(400)
-        .json({ message: "Vui lòng nhập đầy đủ thông tin" });
+  try {
+    const { customer_name, note, total_price, cart } = req.body;
+
+    if (!customer_name) {
+      return res.status(400).json({ message: "Vui lòng nhập tên khách hàng" });
     }
 
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
       return res.status(400).json({ message: "Giỏ hàng trống" });
     }
 
-    await connection.beginTransaction();
+    await transaction.begin();
 
+    // Tạo đơn hàng mới
     const queryOrder = `
       INSERT INTO list_order (customer_name, note, total_price, status)
-      VALUES (?, ?, ?, ?)
-    `;
-    const valuesOrder = [customer_name, note || "", total_price || 0, 0];
-    const [resultOrder] = await connection.execute(queryOrder, valuesOrder);
-
-    const orderId = resultOrder.insertId;
-
-    const queryDetail = `
-      INSERT INTO order_detail (order_id, food_id, quantity)
-      VALUES ?
+      OUTPUT INSERTED.oder_id
+      VALUES (@customer_name, @note, @total_price, @status)
     `;
 
-    const valuesDetail = cart.map((item) => [orderId, item.id, item.quantity]);
+    const requestOrder = new connect.sql.Request(transaction);
+    requestOrder.input("customer_name", connect.sql.NVarChar, customer_name);
+    requestOrder.input("note", connect.sql.NVarChar, note || "");
+    requestOrder.input(
+      "total_price",
+      connect.sql.Decimal(12, 2),
+      total_price || 0
+    );
+    requestOrder.input("status", connect.sql.SmallInt, 0);
 
-    await connection.query(queryDetail, [valuesDetail]);
+    const resultOrder = await requestOrder.query(queryOrder);
+    const orderId = resultOrder.recordset[0].oder_id;
 
-    await connection.commit();
+    // Thêm chi tiết món ăn
+    for (const item of cart) {
+      const queryDetail = `
+        INSERT INTO order_detail (order_id, food_id, quantity, price)
+        VALUES (@order_id, @food_id, @quantity, @price)
+      `;
 
+      const requestDetail = new connect.sql.Request(transaction);
+      requestDetail.input("order_id", connect.sql.Int, orderId);
+      requestDetail.input("food_id", connect.sql.Int, item.id);
+      requestDetail.input("quantity", connect.sql.Int, item.quantity);
+      requestDetail.input("price", connect.sql.Decimal(10, 2), item.price || 0);
+
+      await requestDetail.query(queryDetail);
+    }
+
+    await transaction.commit();
+
+    // Phát sự kiện realtime qua WebSocket
     broadcastOrder({
       orderId,
       customer_name,
-      customer_phone,
       note,
       total_price,
       cart,
@@ -89,22 +111,22 @@ const postListFood = async (req, res) => {
 
     res.status(201).json({
       message: "Tạo đơn hàng thành công",
-      orderId: orderId,
+      orderId,
     });
   } catch (error) {
-    await connection.rollback();
-    console.error("Lỗi tạo đơn:", error);
+    try {
+      await transaction.rollback();
+    } catch (rollbackError) {
+      console.error("⚠️ Lỗi khi rollback:", rollbackError);
+    }
+
+    console.error("❌ Lỗi khi tạo đơn:", error);
     res.status(500).json({ message: "Có lỗi xảy ra khi lưu đơn hàng" });
-  } finally {
-    connection.release();
   }
 };
 
 module.exports = {
-  //* Get
   indexPage,
-  //* Get Data
   getListFood,
-  //* POST
   postListFood,
 };
