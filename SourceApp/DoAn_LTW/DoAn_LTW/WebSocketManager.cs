@@ -66,7 +66,7 @@ namespace DoAn_LTW
             Console.WriteLine($"Closed - Code: {e.Code}, Reason: {e.Reason}");
             OnConnectionStatusChanged?.Invoke(false);
 
-            // Nếu tự đóng sẽ trả ra 1000 và kết thúc
+            // Nếu tự đóng sẽ trả 1000 và kết thúc
             if (e.Code != 1000)
             {
                 ScheduleReconnect();

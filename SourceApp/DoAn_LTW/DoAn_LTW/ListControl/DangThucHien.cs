@@ -15,7 +15,6 @@ namespace DoAn_LTW.ListControl
     public partial class DangThucHien : UserControl
     {
         private FlowLayoutPanel flowPanel;
-        private static Dictionary<int, string> listFood = new Dictionary<int, string>();
 
         public DangThucHien()
         {
@@ -53,22 +52,22 @@ namespace DoAn_LTW.ListControl
             orderPanel.Padding = new Padding(15);
             orderPanel.Margin = new Padding(10, 15, 10, 15);
             orderPanel.Width = 350;
-            orderPanel.Height = 500;
+            orderPanel.Height = 650;
             orderPanel.BorderStyle = BorderStyle.None;
             orderPanel.AutoScroll = true;
 
             // Tiêu đề
             Label lblTitle = new Label();
-            lblTitle.Text = $"ORDER #{order["orderId"]} - ĐANG THỰC HIỆN";
+            lblTitle.Text = $"Order #{order["orderId"]} - Đang thực hiện";
             lblTitle.Font = new Font("Segoe UI", 12, FontStyle.Bold);
             lblTitle.ForeColor = Color.FromArgb(220, 120, 0);
             lblTitle.Dock = DockStyle.Top;
             lblTitle.Height = 25;
             lblTitle.Padding = new Padding(0, 0, 0, 5);
 
-            // Khách hàng
+            // Tên khách hàng
             Label lblCustomer = new Label();
-            lblCustomer.Text = $"Khách: {order["customer_name"]}";
+            lblCustomer.Text = $"Tên khách hàng: {order["customer_name"]}";
             lblCustomer.Font = new Font("Segoe UI", 9.5f, FontStyle.Regular);
             lblCustomer.ForeColor = Color.FromArgb(100, 100, 100);
             lblCustomer.Dock = DockStyle.Top;
@@ -147,6 +146,15 @@ namespace DoAn_LTW.ListControl
                 }
             }
 
+            // Note khách hàng
+            Label lblNote = new Label();
+            lblNote.Text = $"*Note: {order["note"]}";
+            lblNote.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            lblNote.ForeColor = Color.FromArgb(100, 100, 100);
+            lblNote.Dock = DockStyle.Bottom;
+            lblNote.Height = 50;
+            lblNote.Padding = new Padding(0, 0, 0, 8);
+
             Button btnHoanThanh = new Button();
             btnHoanThanh.Text = "Hoàn Thành";
             btnHoanThanh.Dock = DockStyle.Bottom;
@@ -162,11 +170,18 @@ namespace DoAn_LTW.ListControl
                 flowPanel.Controls.Remove(orderPanel);
             };
 
+            Label spacer = new Label();
+            spacer.Dock = DockStyle.Top;
+            spacer.Height = 25;
+            spacer.Padding = new Padding(0, 0, 0, 5);
+
+            orderPanel.Controls.Add(lblNote);
             orderPanel.Controls.Add(btnHoanThanh);
             orderPanel.Controls.Add(orderItemsPanel);
             orderPanel.Controls.Add(separator);
             orderPanel.Controls.Add(lblCustomer);
             orderPanel.Controls.Add(lblTitle);
+            orderPanel.Controls.Add(spacer);
 
             flowPanel.Controls.Add(orderPanel);
         }

@@ -18,10 +18,11 @@
         {
             this.btnDanhSach = new System.Windows.Forms.Button();
             this.btnDangThucHien = new System.Windows.Forms.Button();
-            this.btnQuanLy = new System.Windows.Forms.Button();
+            this.btnMenuFood = new System.Windows.Forms.Button();
             this.btnKho = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblTitle = new System.Windows.Forms.Label();
+            this.btnQuanLy = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -33,7 +34,7 @@
             this.btnDanhSach.TabIndex = 0;
             this.btnDanhSach.Text = "Danh Sách";
             this.btnDanhSach.UseVisualStyleBackColor = true;
-            this.btnDanhSach.Click += new System.EventHandler(this.button1_Click);
+            this.btnDanhSach.Click += new System.EventHandler(this.HandleChangePanel);
             // 
             // btnDangThucHien
             // 
@@ -43,17 +44,17 @@
             this.btnDangThucHien.TabIndex = 0;
             this.btnDangThucHien.Text = "Đang Thực Hiện";
             this.btnDangThucHien.UseVisualStyleBackColor = true;
-            this.btnDangThucHien.Click += new System.EventHandler(this.button1_Click);
+            this.btnDangThucHien.Click += new System.EventHandler(this.HandleChangePanel);
             // 
-            // btnQuanLy
+            // btnMenuFood
             // 
-            this.btnQuanLy.Location = new System.Drawing.Point(34, 393);
-            this.btnQuanLy.Name = "btnQuanLy";
-            this.btnQuanLy.Size = new System.Drawing.Size(175, 54);
-            this.btnQuanLy.TabIndex = 0;
-            this.btnQuanLy.Text = "Quản Lý";
-            this.btnQuanLy.UseVisualStyleBackColor = true;
-            this.btnQuanLy.Click += new System.EventHandler(this.button1_Click);
+            this.btnMenuFood.Location = new System.Drawing.Point(34, 393);
+            this.btnMenuFood.Name = "btnMenuFood";
+            this.btnMenuFood.Size = new System.Drawing.Size(175, 54);
+            this.btnMenuFood.TabIndex = 0;
+            this.btnMenuFood.Text = "Foods";
+            this.btnMenuFood.UseVisualStyleBackColor = true;
+            this.btnMenuFood.Click += new System.EventHandler(this.HandleChangePanel);
             // 
             // btnKho
             // 
@@ -63,7 +64,7 @@
             this.btnKho.TabIndex = 0;
             this.btnKho.Text = "Kho";
             this.btnKho.UseVisualStyleBackColor = true;
-            this.btnKho.Click += new System.EventHandler(this.button1_Click);
+            this.btnKho.Click += new System.EventHandler(this.HandleChangePanel);
             // 
             // panel1
             // 
@@ -84,6 +85,16 @@
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = "Danh sách Order";
             // 
+            // btnQuanLy
+            // 
+            this.btnQuanLy.Location = new System.Drawing.Point(34, 520);
+            this.btnQuanLy.Name = "btnQuanLy";
+            this.btnQuanLy.Size = new System.Drawing.Size(175, 54);
+            this.btnQuanLy.TabIndex = 0;
+            this.btnQuanLy.Text = "Quản Lý";
+            this.btnQuanLy.UseVisualStyleBackColor = true;
+            this.btnQuanLy.Click += new System.EventHandler(this.HandleChangePanel);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -93,6 +104,7 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.btnKho);
             this.Controls.Add(this.btnQuanLy);
+            this.Controls.Add(this.btnMenuFood);
             this.Controls.Add(this.btnDangThucHien);
             this.Controls.Add(this.btnDanhSach);
             this.MaximizeBox = false;
@@ -108,9 +120,10 @@
 
         private System.Windows.Forms.Button btnDanhSach;
         private System.Windows.Forms.Button btnDangThucHien;
-        private System.Windows.Forms.Button btnQuanLy;
+        private System.Windows.Forms.Button btnMenuFood;
         private System.Windows.Forms.Button btnKho;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Button btnQuanLy;
     }
 }
