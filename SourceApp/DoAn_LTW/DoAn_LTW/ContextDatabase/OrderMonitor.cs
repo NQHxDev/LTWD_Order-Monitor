@@ -30,7 +30,12 @@ namespace DoAn_LTW.ContextDatabase
             modelBuilder.Entity<account>()
                 .HasMany(e => e.export)
                 .WithOptional(e => e.account)
-                .HasForeignKey(e => e.created_by);
+                .HasForeignKey(e => e.export_by);
+
+            modelBuilder.Entity<account>()
+                .HasMany(e => e.import_detail)
+                .WithOptional(e => e.account)
+                .HasForeignKey(e => e.import_by);
 
             modelBuilder.Entity<account>()
                 .HasMany(e => e.import)

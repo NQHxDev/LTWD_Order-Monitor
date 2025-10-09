@@ -18,11 +18,13 @@ namespace DoAn_LTW.ContextDatabase
         [Key]
         public int import_id { get; set; }
 
-        public DateTime? import_date { get; set; }
+        public DateTime? create_at { get; set; }
 
         public decimal total_value { get; set; }
 
         public int? created_by { get; set; }
+
+        public int import_status { get; set; }
 
         public virtual account account { get; set; }
 

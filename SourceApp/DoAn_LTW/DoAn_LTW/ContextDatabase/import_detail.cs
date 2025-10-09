@@ -19,8 +19,14 @@ namespace DoAn_LTW.ContextDatabase
 
         public decimal unit_price { get; set; }
 
+        public DateTime? import_date { get; set; }
+
+        public int? import_by { get; set; }
+
         public virtual import import { get; set; }
 
         public virtual item item { get; set; }
+
+        public virtual account account { get; set; }
     }
 }
