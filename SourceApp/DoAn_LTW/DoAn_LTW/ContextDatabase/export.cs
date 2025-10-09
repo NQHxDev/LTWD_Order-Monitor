@@ -23,7 +23,9 @@ namespace DoAn_LTW.ContextDatabase
         [StringLength(255)]
         public string purpose { get; set; }
 
-        public int? created_by { get; set; }
+        public int? export_by { get; set; }
+
+        public int export_status { get; set; }
 
         public virtual account account { get; set; }
 

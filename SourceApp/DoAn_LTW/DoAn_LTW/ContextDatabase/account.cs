@@ -31,10 +31,14 @@ namespace DoAn_LTW.ContextDatabase
 
         public DateTime? created_at { get; set; }
 
+        public string name { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<export> export { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<import> import { get; set; }
+
+        public virtual ICollection<import_detail> import_detail { get; set; }
     }
 }
