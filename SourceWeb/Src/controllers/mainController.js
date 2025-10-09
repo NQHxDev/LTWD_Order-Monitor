@@ -48,7 +48,7 @@ const postListFood = async (req, res) => {
   const transaction = new connect.sql.Transaction(pool);
 
   try {
-    const { customer_name, note, total_price, cart } = req.body;
+    const { customer_name, customer_phone, note, total_price, cart } = req.body;
 
     if (!customer_name) {
       return res.status(400).json({ message: "Vui lòng nhập tên khách hàng" });
@@ -98,10 +98,11 @@ const postListFood = async (req, res) => {
 
     await transaction.commit();
 
-    // Phát sự kiện realtime qua WebSocket
+    // Send Data to WebSocket Application
     broadcastOrder({
       orderId,
       customer_name,
+      customer_phone,
       note,
       total_price,
       cart,
@@ -117,10 +118,10 @@ const postListFood = async (req, res) => {
     try {
       await transaction.rollback();
     } catch (rollbackError) {
-      console.error("⚠️ Lỗi khi rollback:", rollbackError);
+      console.error("Lỗi khi rollback:", rollbackError);
     }
 
-    console.error("❌ Lỗi khi tạo đơn:", error);
+    console.error("Lỗi khi tạo đơn:", error);
     res.status(500).json({ message: "Có lỗi xảy ra khi lưu đơn hàng" });
   }
 };

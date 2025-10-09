@@ -13,11 +13,11 @@ namespace DoAn_LTW
         public static Dictionary<int, unit> Units { get; private set; } = new Dictionary<int, unit>();
         public static Dictionary<int, List<food_ingredient>> FoodIngredients { get; private set; } = new Dictionary<int, List<food_ingredient>>();
 
-        private static bool _isLoaded = false;
+        private static bool isLoaded = false;
 
         public static void Initialize()
         {
-            if (_isLoaded) return;
+            if (isLoaded) return;
 
             try
             {
@@ -45,7 +45,7 @@ namespace DoAn_LTW
                         .GroupBy(fi => fi.food_id)
                         .ToDictionary(g => g.Key, g => g.ToList());
 
-                    _isLoaded = true;
+                    isLoaded = true;
                 }
             }
             catch (Exception ex)

@@ -31,7 +31,6 @@ namespace DoAn_LTW.ListControl
             titleLabel.TextAlign = ContentAlignment.MiddleCenter;
             this.Controls.Add(titleLabel);
 
-            // Khởi tạo FlowLayoutPanel
             flowPanel = new FlowLayoutPanel();
             flowPanel.Dock = DockStyle.Fill;
             flowPanel.AutoScroll = true;
@@ -40,26 +39,6 @@ namespace DoAn_LTW.ListControl
             this.Controls.Add(flowPanel);
 
             WebSocketManager.OnMessageReceived += HandleWebSocketMessage;
-        }
-
-        private void HandleWebSocketMessage(string msg)
-        {
-            try
-            {
-                var json = JObject.Parse(msg);
-                if (json["type"]?.ToString() == "orderFood")
-                {
-                    var order = json["payload"];
-                    this.Invoke((MethodInvoker)(() =>
-                    {
-                        AddOrderCard(order);
-                    }));
-                }
-            }
-            catch (Exception ex)
-            {
-                Log("Parse error: " + ex.Message);
-            }
         }
 
         private void AddOrderCard(JToken order)
@@ -74,25 +53,25 @@ namespace DoAn_LTW.ListControl
 
             // Tiêu đề
             Label lblTitle = new Label();
-            lblTitle.Text = $"ORDER #{order["orderId"]}";
+            lblTitle.Text = $"Order #{order["orderId"]}";
             lblTitle.Font = new Font("Segoe UI", 12, FontStyle.Bold);
-            lblTitle.ForeColor = Color.FromArgb(45, 45, 45);
+            lblTitle.ForeColor = Color.FromArgb(220, 120, 0);
             lblTitle.Dock = DockStyle.Top;
             lblTitle.Height = 25;
             lblTitle.Padding = new Padding(0, 0, 0, 5);
 
             // Order Detail
             Label lblCustomer = new Label();
-            lblCustomer.Text = $"Order ID: {order["orderId"]} ✧•✧ {order["customer_name"]}";
+            lblCustomer.Text = $"Khách hàng: {order["customer_name"]}\nSĐT: {order["customer_phone"]}";
             lblCustomer.Font = new Font("Segoe UI", 9.5f, FontStyle.Regular);
             lblCustomer.ForeColor = Color.FromArgb(100, 100, 100);
             lblCustomer.Dock = DockStyle.Top;
-            lblCustomer.Height = 28;
+            lblCustomer.Height = 45;
             lblCustomer.Padding = new Padding(0, 0, 0, 8);
 
             // Dòng phân cách
             Panel separator = new Panel();
-            separator.Height = 1;
+            separator.Height = 2;
             separator.BackColor = Color.FromArgb(240, 240, 240);
             separator.Dock = DockStyle.Top;
 
@@ -116,29 +95,32 @@ namespace DoAn_LTW.ListControl
                 itemPanel.Margin = new Padding(0, 0, 0, 5);
 
                 Label lblItemName = new Label();
-                lblItemName.Text = $"{foodName}";
+                lblItemName.Text = $"• {foodName}";
                 lblItemName.ForeColor = Color.FromArgb(60, 60, 60);
                 lblItemName.Font = new Font("Segoe UI", 9, FontStyle.Regular);
                 lblItemName.AutoSize = true;
                 lblItemName.Location = new Point(0, 5);
                 itemPanel.Controls.Add(lblItemName);
 
-                Label lblItemPrice = new Label();
-                lblItemPrice.Text = $"SL: {qty}";
-                lblItemPrice.ForeColor = Color.FromArgb(60, 60, 60);
-                lblItemPrice.Font = new Font("Segoe UI", 9, FontStyle.Regular);
-                lblItemPrice.AutoSize = true;
-                lblItemPrice.Location = new Point(200, 5);
-                itemPanel.Controls.Add(lblItemPrice);
+                Label lblItemQty = new Label();
+                lblItemQty.Text = $"x{qty}";
+                lblItemQty.ForeColor = Color.FromArgb(60, 60, 60);
+                lblItemQty.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                lblItemQty.AutoSize = true;
+                lblItemQty.Location = new Point(250, 5);
+                itemPanel.Controls.Add(lblItemQty);
 
                 itemsPanel.Controls.Add(itemPanel);
             }
 
-            // Dòng phân cách dưới cùng
-            Panel separatorBottom = new Panel();
-            separatorBottom.Height = 1;
-            separatorBottom.BackColor = Color.FromArgb(240, 240, 240);
-            separatorBottom.Dock = DockStyle.Bottom;
+            // Note khách hàng
+            Label lblNote = new Label();
+            lblNote.Text = $"*Note: {order["note"]}";
+            lblNote.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            lblNote.ForeColor = Color.FromArgb(100, 100, 100);
+            lblNote.Dock = DockStyle.Bottom;
+            lblNote.Height = 50;
+            lblNote.Padding = new Padding(0, 0, 0, 8);
 
             // Nút Nhận đơn
             Button btnNhanDon = new Button();
@@ -178,12 +160,19 @@ namespace DoAn_LTW.ListControl
                 flowPanel.Controls.Remove(orderPanel);
             };
 
+            Label spacer = new Label();
+            spacer.Dock = DockStyle.Top;
+            spacer.Height = 25;
+            spacer.Padding = new Padding(0, 0, 0, 5);
+            
+            orderPanel.Controls.Add(lblNote);
             orderPanel.Controls.Add(btnNhanDon);
-            orderPanel.Controls.Add(separatorBottom);
+            orderPanel.Controls.Add(separator);
             orderPanel.Controls.Add(itemsPanel);
             orderPanel.Controls.Add(separator);
             orderPanel.Controls.Add(lblCustomer);
             orderPanel.Controls.Add(lblTitle);
+            orderPanel.Controls.Add(spacer);
 
             flowPanel.Controls.Add(orderPanel);
         }
@@ -204,21 +193,28 @@ namespace DoAn_LTW.ListControl
 
         private List<food_ingredient> GetIngredientsByFoodId(int foodId)
         {
+            return DataCache.FoodIngredients.TryGetValue(foodId, out var ingredients)
+                ? ingredients
+                : new List<food_ingredient>();
+        }
+
+        private void HandleWebSocketMessage(string msg)
+        {
             try
             {
-                using (var context = new OrderMonitor())
+                var json = JObject.Parse(msg);
+                if (json["type"]?.ToString() == "orderFood")
                 {
-                    return context.food_ingredient
-                        .Where(fi => fi.food_id == foodId)
-                        .Include(fi => fi.item)
-                        .Include(fi => fi.item.unit)
-                        .ToList();
+                    var order = json["payload"];
+                    this.Invoke((MethodInvoker)(() =>
+                    {
+                        AddOrderCard(order);
+                    }));
                 }
             }
             catch (Exception ex)
             {
-                Log($"GetIngredientsByFoodId error for food {foodId}: " + ex.Message);
-                return new List<food_ingredient>();
+                Log("Parse error: " + ex.Message);
             }
         }
 
