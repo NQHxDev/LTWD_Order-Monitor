@@ -30,6 +30,9 @@ namespace DoAn_LTW.ContextDatabase
 
         public DateTime? updated_at { get; set; }
 
+        [StringLength(10)]
+        public string customer_phone { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<order_detail> order_detail { get; set; }
     }

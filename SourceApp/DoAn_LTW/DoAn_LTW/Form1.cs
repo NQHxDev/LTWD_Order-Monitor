@@ -18,15 +18,18 @@ namespace DoAn_LTW
         private ListControl.Kho dsKho;
         private ListControl.QuanLy quanLy;
         private ListControl.MenuFood menuFood;
+        private ListControl.OrderCompleted orderCompleted;
 
         public Form1()
         {
             InitializeComponent();
+            DataCache.Initialize();
+
             initControls();
 
             WebSocketManager.Connect();
             WebSocketManager.OnMessageReceived += HandleMessage;
-            DataCache.Initialize();
+            
             ShowPanel("DanhSach");
         }
 
@@ -37,24 +40,27 @@ namespace DoAn_LTW
 
         private void initControls()
         {
-            // Tạo UserControls
+            // UserControls
             danhSachOrder = new ListControl.DanhSachOder();
             dangThucHien = new ListControl.DangThucHien();
             dsKho = new ListControl.Kho();
             menuFood = new ListControl.MenuFood();
             quanLy = new ListControl.QuanLy();
+            orderCompleted = new ListControl.OrderCompleted();
 
             danhSachOrder.Dock = DockStyle.Fill;
             dangThucHien.Dock = DockStyle.Fill;
             dsKho.Dock = DockStyle.Fill;
             menuFood.Dock = DockStyle .Fill;
             quanLy.Dock = DockStyle.Fill;
+            orderCompleted.Dock = DockStyle .Fill;
 
             panel1.Controls.Add(danhSachOrder);
             panel1.Controls.Add(dangThucHien);
             panel1.Controls.Add(dsKho);
             panel1.Controls.Add(menuFood);
             panel1.Controls.Add(quanLy);
+            panel1.Controls.Add(orderCompleted);
         }
 
 
@@ -70,13 +76,14 @@ namespace DoAn_LTW
             selectedButton.BackColor = Color.LightBlue;
         }
 
-        private void ShowPanel(string panelName)
+        public void ShowPanel(string panelName)
         {
             danhSachOrder.Visible = false;
             dangThucHien.Visible = false;
             dsKho.Visible = false;
             menuFood.Visible = false;
             quanLy.Visible = false;
+            orderCompleted.Visible = false;
 
             switch (panelName)
             {
@@ -105,7 +112,9 @@ namespace DoAn_LTW
                     lblTitle.Text = "Quản lý Bếp";
                     highlightButton(btnQuanLy);
                     break;
-               
+                case "OrderComplete":
+                    orderCompleted.Visible = true;
+                    break;
             }
         }
 

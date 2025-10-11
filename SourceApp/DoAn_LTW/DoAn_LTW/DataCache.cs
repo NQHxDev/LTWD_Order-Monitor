@@ -1,4 +1,5 @@
 ﻿using DoAn_LTW.ContextDatabase;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -53,6 +54,102 @@ namespace DoAn_LTW
                 System.IO.File.AppendAllText("ws_log.txt", $"[{DateTime.Now}] DataCache error: {ex.Message}\n");
             }
         }
+
+        public static List<JObject> GetPendingOrders()
+        {
+            var ordersList = new List<JObject>();
+
+            try
+            {
+                using (var context = new OrderMonitor())
+                {
+                    var pendingOrders = context.list_order
+                        .Include(o => o.order_detail.Select(od => od.food))
+                        .Where(o => o.status == 0)
+                        .ToList();
+
+                    foreach (var order in pendingOrders)
+                    {
+                        var cartArray = new JArray();
+
+                        foreach (var detail in order.order_detail)
+                        {
+                            string foodName = GetFoodName(detail.food_id);
+                            cartArray.Add(new JObject
+                            {
+                                ["id"] = detail.food_id,
+                                ["name"] = foodName,
+                                ["quantity"] = detail.quantity,
+                                ["price"] = (int)detail.price
+                            });
+                        }
+
+                        var orderJson = new JObject
+                        {
+                            ["orderId"] = order.oder_id,
+                            ["customer_name"] = order.customer_name ?? "Khách lạ",
+                            ["customer_phone"] = order.customer_phone ?? "",
+                            ["note"] = order.note ?? "",
+                            ["cart"] = cartArray
+                        };
+
+                        ordersList.Add(orderJson);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText("ws_log.txt", $"[{DateTime.Now}] GetPendingOrders error: {ex.Message}\n");
+            }
+
+            return ordersList;
+        }
+
+        public static List<JToken> GetCompletedOrders()
+        {
+            using (var context = new OrderMonitor())
+            {
+                var completedOrders = context.list_order
+                    .Include(o => o.order_detail.Select(od => od.food))
+                    .Where(o => o.status == 1)
+                    .OrderByDescending(o => o.updated_at)
+                    .ToList();
+
+                var result = new List<JToken>();
+
+                foreach (var order in completedOrders)
+                {
+                    var cartArray = new JArray();
+                    foreach (var detail in order.order_detail)
+                    {
+                        cartArray.Add(new JObject
+                        {
+                            ["food_id"] = detail.food_id,
+                            ["food_name"] = detail.food?.name ?? "Không rõ món",
+                            ["quantity"] = detail.quantity,
+                            ["price"] = (int)detail.price
+                        });
+                    }
+
+                    var orderJson = new JObject
+                    {
+                        ["orderId"] = order.oder_id,
+                        ["customer_name"] = order.customer_name ?? "Khách lạ",
+                        ["customer_phone"] = order.customer_phone ?? "",
+                        ["note"] = order.note ?? "",
+                        ["total_price"] = order.total_price,
+                        ["cart"] = cartArray,
+                        ["status"] = order.status,
+                        ["created_at"] = order.created_at
+                    };
+
+                    result.Add(orderJson);
+                }
+
+                return result;
+            }
+        }
+
 
         public static string GetFoodName(int id)
         {
