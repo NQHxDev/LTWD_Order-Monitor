@@ -23,5 +23,10 @@ namespace DoAn_LTW.ListControl
             titleLabel.TextAlign = ContentAlignment.MiddleCenter;
             this.Controls.Add(titleLabel);
         }
+
+        private void Kho_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

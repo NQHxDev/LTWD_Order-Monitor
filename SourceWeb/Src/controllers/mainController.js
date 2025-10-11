@@ -69,9 +69,9 @@ export const postListFood = async (req, res) => {
 
       // Tạo đơn hàng mới
       const queryOrder = `
-      INSERT INTO list_order (customer_name, note, total_price, status)
+      INSERT INTO list_order (customer_name, note, total_price, status, customer_phone)
       OUTPUT INSERTED.oder_id
-      VALUES (@customer_name, @note, @total_price, @status)
+      VALUES (@customer_name, @note, @total_price, @status, @customer_phone)
     `;
 
       const requestOrder = new connect.sql.Request(transaction);
@@ -83,6 +83,11 @@ export const postListFood = async (req, res) => {
          total_price || 0
       );
       requestOrder.input('status', connect.sql.SmallInt, 0);
+      requestOrder.input(
+         'customer_phone',
+         connect.sql.NVarChar,
+         customer_phone || ''
+      );
 
       const resultOrder = await requestOrder.query(queryOrder);
       const orderId = resultOrder.recordset[0].oder_id;

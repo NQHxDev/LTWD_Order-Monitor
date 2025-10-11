@@ -16,6 +16,7 @@ namespace DoAn_LTW.ListControl
 {
     public partial class DanhSachOder : UserControl
     {
+        Panel mainContainer;
         private FlowLayoutPanel flowPanel;
 
         private static Dictionary<int, string> listFood = new Dictionary<int, string>();
@@ -32,14 +33,60 @@ namespace DoAn_LTW.ListControl
             titleLabel.TextAlign = ContentAlignment.MiddleCenter;
             this.Controls.Add(titleLabel);
 
+            // Main container
+            mainContainer = new Panel();
+            mainContainer.Dock = DockStyle.Fill;
+            mainContainer.BackColor = Color.FromArgb(60, 60, 60);
+            mainContainer.Padding = new Padding(10);
+            this.Controls.Add(mainContainer);
+
+            InitializeOrderCard(mainContainer);
+
+            WebSocketManager.OnMessageReceived += HandleWebSocketMessage;
+
+            LoadPendingOrders();
+        }
+
+        private void InitializeOrderCard(Panel container)
+        {
+            Panel orderListPanel = new Panel();
+            orderListPanel.Dock = DockStyle.Fill;
+            orderListPanel.Name = "pnlOrderList";
+
+            Panel buttonPanel = new Panel();
+            buttonPanel.Height = 50;
+            buttonPanel.Dock = DockStyle.Top;
+            buttonPanel.BackColor = Color.FromArgb(60, 60, 60);
+
+            Button btnShowCompleted = new Button();
+            btnShowCompleted.Text = "Xem Order Đã Nhận";
+            btnShowCompleted.Size = new Size(120, 35);
+            btnShowCompleted.Location = new Point(0, 10);
+            btnShowCompleted.BackColor = Color.FromArgb(0, 120, 215);
+            btnShowCompleted.ForeColor = Color.White;
+            btnShowCompleted.FlatStyle = FlatStyle.Flat;
+            btnShowCompleted.Margin = new Padding(10, 10, 10, 10);
+            
+            buttonPanel.Controls.AddRange(new Control[] { btnShowCompleted });
+            btnShowCompleted.Click += (s, e) => ShowCompletedOrders();
+
             flowPanel = new FlowLayoutPanel();
             flowPanel.Dock = DockStyle.Fill;
             flowPanel.AutoScroll = true;
             flowPanel.WrapContents = true;
             flowPanel.FlowDirection = FlowDirection.LeftToRight;
-            this.Controls.Add(flowPanel);
+            flowPanel.Padding = new Padding(10);
 
-            WebSocketManager.OnMessageReceived += HandleWebSocketMessage;
+            Label spacer = new Label();
+            spacer.Dock = DockStyle.Top;
+            spacer.Height = 45;
+            spacer.Padding = new Padding(0, 0, 0, 5);
+
+            orderListPanel.Controls.Add(flowPanel);
+            orderListPanel.Controls.Add(buttonPanel);
+            orderListPanel.Controls.Add(spacer);
+
+            container.Controls.Add(orderListPanel);
         }
 
         private void AddOrderCard(JToken order)
@@ -156,60 +203,9 @@ namespace DoAn_LTW.ListControl
             buttonsPanel.Controls.Add(btnNhanDon);
             buttonsPanel.Controls.Add(btnHuyDon);
 
-            btnNhanDon.Click += async (s, e) =>
-            {
-                btnNhanDon.Text = "Đã Nhận";
-                btnNhanDon.Enabled = false;
-                btnNhanDon.BackColor = Color.FromArgb(120, 120, 120);
+            btnNhanDon.Click += (s, e) => HandleAcceptOrder(order, orderPanel, btnNhanDon);
 
-                int orderId = (int)order["orderId"];
-                SendOrderStatus(orderId, "accepted");
-
-                var allIngredients = new List<food_ingredient>();
-
-                foreach (var item in order["cart"])
-                {
-                    int foodId = (int)item["id"];
-                    var ingredients = DataCache.GetIngredientsByFoodId(foodId);
-                    allIngredients.AddRange(ingredients);
-                }
-
-                var parentForm = this.FindForm();
-                var dangThucHienPanel = FindDangThucHienPanel(parentForm);
-
-                if (dangThucHienPanel != null)
-                {
-                    dangThucHienPanel.AddOrder(order, allIngredients);
-                }
-
-                await Task.Delay(3000);
-                flowPanel.Controls.Remove(orderPanel);
-            };
-
-            btnHuyDon.Click += (s, e) =>
-            {
-                int orderId = (int)order["orderId"];
-
-                string reason = Interaction.InputBox(
-                    "Nhập lý do hủy đơn:", "Hủy đơn #" + orderId, "");
-
-                if (string.IsNullOrWhiteSpace(reason))
-                {
-                    MessageBox.Show("Bạn phải nhập lý do hủy đơn!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                SendOrderStatus(orderId, "cancelled", reason);
-
-                flowPanel.Controls.Remove(orderPanel);
-            };
-
-
-            Label spacer = new Label();
-            spacer.Dock = DockStyle.Top;
-            spacer.Height = 25;
-            spacer.Padding = new Padding(0, 0, 0, 5);
+            btnHuyDon.Click += (s, e) => HandleCancelOrder(order, orderPanel);
 
             orderPanel.Controls.Add(lblNote);
 
@@ -220,9 +216,87 @@ namespace DoAn_LTW.ListControl
             orderPanel.Controls.Add(separator);
             orderPanel.Controls.Add(lblCustomer);
             orderPanel.Controls.Add(lblTitle);
-            orderPanel.Controls.Add(spacer);
 
             flowPanel.Controls.Add(orderPanel);
+        }
+
+        private async void HandleAcceptOrder(JToken order, Panel orderPanel, Button btnNhanDon)
+        {
+            btnNhanDon.Text = "Đã Nhận";
+            btnNhanDon.Enabled = false;
+            btnNhanDon.BackColor = Color.FromArgb(120, 120, 120);
+
+            int orderId = (int)order["orderId"];
+            SendOrderStatus(orderId, "accepted");
+
+            var allIngredients = new List<food_ingredient>();
+
+            foreach (var item in order["cart"])
+            {
+                int foodId = (int)item["id"];
+                var ingredients = DataCache.GetIngredientsByFoodId(foodId);
+                allIngredients.AddRange(ingredients);
+            }
+
+            var parentForm = this.FindForm();
+            var dangThucHienPanel = FindDangThucHienPanel(parentForm);
+
+            if (dangThucHienPanel != null)
+            {
+                dangThucHienPanel.AddOrder(order, allIngredients);
+            }
+
+            UpdateStatusOrder(orderId, 1);
+
+            await Task.Delay(2000);
+            flowPanel.Controls.Remove(orderPanel);
+        }
+
+        private void HandleCancelOrder(JToken order, Panel orderPanel)
+        {
+            int orderId = (int)order["orderId"];
+
+            string reason = Interaction.InputBox(
+                "Nhập lý do hủy đơn:", "Hủy đơn #" + orderId, "");
+
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                MessageBox.Show("Bạn phải nhập lý do hủy đơn!", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            UpdateStatusOrder(orderId, -1);
+
+            SendOrderStatus(orderId, "cancelled", reason);
+            flowPanel.Controls.Remove(orderPanel);
+        }
+
+        private void UpdateStatusOrder(int orderId, short status)
+        {
+            using (var context = new OrderMonitor())
+            {
+                var entity = context.list_order.FirstOrDefault(o => o.oder_id == orderId);
+                if (entity != null)
+                {
+                    entity.status = status;
+                    entity.updated_at = DateTime.Now;
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        private void ShowCompletedOrders()
+        {
+            mainContainer.Visible = false;
+
+            OrderCompleted completedPanel = new OrderCompleted();
+            completedPanel.Dock = DockStyle.Fill;
+            completedPanel.BackButtonClicked += () =>
+            {
+                this.Controls.Remove(completedPanel);
+                mainContainer.Visible = true;
+            };
+            this.Controls.Add(completedPanel);
         }
 
         private DangThucHien FindDangThucHienPanel(Control parent)
@@ -237,6 +311,23 @@ namespace DoAn_LTW.ListControl
                     return found;
             }
             return null;
+        }
+
+        private void LoadPendingOrders()
+        {
+            try
+            {
+                var pendingOrders = DataCache.GetPendingOrders();
+
+                foreach (var orderJson in pendingOrders)
+                {
+                    AddOrderCard(orderJson);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("LoadPendingOrders error: " + ex.Message);
+            }
         }
 
         private void SendOrderStatus(int orderId, string status, string reason = "")
