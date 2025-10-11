@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.VisualBasic;
 
 namespace DoAn_LTW.ListControl
 {
@@ -122,16 +123,38 @@ namespace DoAn_LTW.ListControl
             lblNote.Height = 50;
             lblNote.Padding = new Padding(0, 0, 0, 8);
 
+            // Panel Button
+            Panel buttonsPanel = new Panel();
+            buttonsPanel.Dock = DockStyle.Bottom;
+            buttonsPanel.Height = 45;
+            buttonsPanel.Padding = new Padding(10, 5, 10, 5);
+
             // Nút Nhận đơn
             Button btnNhanDon = new Button();
             btnNhanDon.Text = "Nhận Đơn";
-            btnNhanDon.Dock = DockStyle.Bottom;
-            btnNhanDon.Height = 38;
+            btnNhanDon.Width = 130;
+            btnNhanDon.Height = 35;
             btnNhanDon.BackColor = Color.FromArgb(76, 175, 80);
             btnNhanDon.ForeColor = Color.White;
             btnNhanDon.FlatStyle = FlatStyle.Flat;
             btnNhanDon.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             btnNhanDon.FlatAppearance.BorderSize = 0;
+            btnNhanDon.Location = new Point(10, 5);
+
+            // Nút Hủy đơn
+            Button btnHuyDon = new Button();
+            btnHuyDon.Text = "Hủy Đơn";
+            btnHuyDon.Width = 130;
+            btnHuyDon.Height = 35;
+            btnHuyDon.BackColor = Color.FromArgb(240, 80, 80);
+            btnHuyDon.ForeColor = Color.White;
+            btnHuyDon.FlatStyle = FlatStyle.Flat;
+            btnHuyDon.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            btnHuyDon.FlatAppearance.BorderSize = 0;
+            btnHuyDon.Location = new Point(btnNhanDon.Right + 10, 5);
+
+            buttonsPanel.Controls.Add(btnNhanDon);
+            buttonsPanel.Controls.Add(btnHuyDon);
 
             btnNhanDon.Click += async (s, e) =>
             {
@@ -139,12 +162,15 @@ namespace DoAn_LTW.ListControl
                 btnNhanDon.Enabled = false;
                 btnNhanDon.BackColor = Color.FromArgb(120, 120, 120);
 
+                int orderId = (int)order["orderId"];
+                SendOrderStatus(orderId, "accepted");
+
                 var allIngredients = new List<food_ingredient>();
 
                 foreach (var item in order["cart"])
                 {
                     int foodId = (int)item["id"];
-                    var ingredients = GetIngredientsByFoodId(foodId);
+                    var ingredients = DataCache.GetIngredientsByFoodId(foodId);
                     allIngredients.AddRange(ingredients);
                 }
 
@@ -160,13 +186,35 @@ namespace DoAn_LTW.ListControl
                 flowPanel.Controls.Remove(orderPanel);
             };
 
+            btnHuyDon.Click += (s, e) =>
+            {
+                int orderId = (int)order["orderId"];
+
+                string reason = Interaction.InputBox(
+                    "Nhập lý do hủy đơn:", "Hủy đơn #" + orderId, "");
+
+                if (string.IsNullOrWhiteSpace(reason))
+                {
+                    MessageBox.Show("Bạn phải nhập lý do hủy đơn!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                SendOrderStatus(orderId, "cancelled", reason);
+
+                flowPanel.Controls.Remove(orderPanel);
+            };
+
+
             Label spacer = new Label();
             spacer.Dock = DockStyle.Top;
             spacer.Height = 25;
             spacer.Padding = new Padding(0, 0, 0, 5);
-            
+
             orderPanel.Controls.Add(lblNote);
-            orderPanel.Controls.Add(btnNhanDon);
+
+            orderPanel.Controls.Add(buttonsPanel);
+
             orderPanel.Controls.Add(separator);
             orderPanel.Controls.Add(itemsPanel);
             orderPanel.Controls.Add(separator);
@@ -191,11 +239,21 @@ namespace DoAn_LTW.ListControl
             return null;
         }
 
-        private List<food_ingredient> GetIngredientsByFoodId(int foodId)
+        private void SendOrderStatus(int orderId, string status, string reason = "")
         {
-            return DataCache.FoodIngredients.TryGetValue(foodId, out var ingredients)
-                ? ingredients
-                : new List<food_ingredient>();
+            var data = new
+            {
+                type = "updateOrderStatus",
+                payload = new
+                {
+                    orderId = orderId,
+                    status = status,
+                    reason = reason
+                }
+            };
+
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(data);
+            WebSocketManager.Send(json);
         }
 
         private void HandleWebSocketMessage(string msg)

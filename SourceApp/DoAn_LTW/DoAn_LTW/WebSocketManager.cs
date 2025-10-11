@@ -16,7 +16,7 @@ namespace DoAn_LTW
         public static event Action<string> OnMessageReceived;
         public static event Action<bool> OnConnectionStatusChanged;
 
-        public static void Connect(string url = "ws://localhost:3000")
+        public static void Connect(string url = "ws://localhost:8081")
         {
             if (ws != null && ws.IsAlive) return;
 

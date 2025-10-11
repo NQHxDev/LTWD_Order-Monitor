@@ -1,37 +1,62 @@
-const { WebSocketServer } = require("ws");
+import { WebSocketServer } from 'ws';
 
 let wss;
 let clients = new Set();
 
-function initWebSocket(server) {
-  wss = new WebSocketServer({ server });
+export const initWebSocket = () => {
+   // Port Websocket 8081
+   wss = new WebSocketServer({ port: 8081 });
 
-  wss.on("connection", (ws) => {
-    console.log("{/} NQH Dev: Client Connected");
-    clients.add(ws);
+   wss.on('connection', (ws, req) => {
+      clients.add(ws);
+      console.log('{/} NQH Dev: Client Connected');
 
-    ws.on("message", (message) => {
-      console.log("Received:", message.toString());
-      ws.send("Echo: " + message.toString());
-    });
+      // Khi nhận được message từ client
+      ws.on('message', (message) => {
+         try {
+            const data = JSON.parse(message.toString());
+            console.log('[LOG] Parsed JSON:', data);
 
-    ws.on("close", () => {
-      clients.delete(ws);
-      console.log("{/} NQH Dev: Client Disconnected");
-    });
-  });
-}
+            if (data.type === 'updateOrderStatus') {
+               const { orderId, status, reason } = data.payload;
+               console.log(
+                  `[LOG] Order #${orderId} updated -> ${status}${
+                     reason ? ` (${reason})` : ''
+                  }`
+               );
 
-function broadcastOrder(orderData) {
-  const data = JSON.stringify({ type: "orderFood", payload: orderData });
-  for (let client of clients) {
-    if (client.readyState === 1) {
-      client.send(data);
-    }
-  }
-}
+               // Gửi cho các client khác
+               const broadcastData = JSON.stringify({
+                  type: 'orderStatusUpdate',
+                  payload: { orderId, status, reason },
+               });
 
-module.exports = {
-  initWebSocket,
-  broadcastOrder,
+               for (let client of clients) {
+                  if (client.readyState === 1 && client !== ws) {
+                     client.send(broadcastData);
+                  }
+               }
+            } else {
+               ws.send('Echo: ' + message.toString());
+            }
+         } catch (err) {
+            console.error('[ERROR] Failed to parse message:', err.message);
+         }
+      });
+
+      // Khi client ngắt kết nối
+      ws.on('close', () => {
+         clients.delete(ws);
+         console.log('{/} NQH Dev: Client Disconnected');
+      });
+   });
+};
+
+export const broadcastOrder = (orderData) => {
+   const data = JSON.stringify({ type: 'orderFood', payload: orderData });
+   for (let client of clients) {
+      if (client.readyState === 1) {
+         client.send(data);
+      }
+   }
 };
