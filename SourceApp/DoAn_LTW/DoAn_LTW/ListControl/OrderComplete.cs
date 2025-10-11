@@ -1,5 +1,4 @@
-﻿using DoAn_LTW.ContextDatabase;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,14 +11,13 @@ using System.Windows.Forms;
 
 namespace DoAn_LTW.ListControl
 {
-    public partial class OrderCompleted : UserControl
+    public partial class OrderComplete : UserControl
     {
         private FlowLayoutPanel flowPanel;
-        private Button btnBack;
 
         public event Action BackButtonClicked;
 
-        public OrderCompleted()
+        public OrderComplete()
         {
             InitializeComponent();
 
@@ -82,7 +80,7 @@ namespace DoAn_LTW.ListControl
         {
             try
             {
-                var completedOrders = DataCache.GetCompletedOrders();
+                var completedOrders = DataCache.GetOrdersByStatus(2);
 
                 foreach (var order in completedOrders)
                 {
@@ -98,18 +96,18 @@ namespace DoAn_LTW.ListControl
         private void AddCompletedOrderCard(JToken order)
         {
             Panel orderPanel = new Panel();
-            orderPanel.BackColor = Color.White;
+            orderPanel.BackColor = Color.FromArgb(240, 255, 240);
             orderPanel.Padding = new Padding(12);
             orderPanel.Margin = new Padding(8, 10, 8, 10);
             orderPanel.Width = 280;
-            orderPanel.Height = 200;
+            orderPanel.Height = 400;
             orderPanel.BorderStyle = BorderStyle.None;
 
             // Tiêu đề Order ID
             Label lblOrderId = new Label();
             lblOrderId.Text = $"Order #{order["orderId"]}";
             lblOrderId.Font = new Font("Segoe UI", 11, FontStyle.Bold);
-            lblOrderId.ForeColor = Color.FromArgb(0, 120, 215);
+            lblOrderId.ForeColor = Color.FromArgb(0, 120, 80);
             lblOrderId.Dock = DockStyle.Top;
             lblOrderId.Height = 25;
             lblOrderId.Padding = new Padding(0, 0, 0, 5);
@@ -118,26 +116,56 @@ namespace DoAn_LTW.ListControl
             Label lblCustomer = new Label();
             lblCustomer.Text = $"Khách hàng: {order["customer_name"]}\nSĐT: {order["customer_phone"]}";
             lblCustomer.Font = new Font("Segoe UI", 9, FontStyle.Regular);
-            lblCustomer.ForeColor = Color.FromArgb(80, 80, 80);
+            lblCustomer.ForeColor = Color.FromArgb(60, 80, 60);
             lblCustomer.Dock = DockStyle.Top;
             lblCustomer.Height = 35;
             lblCustomer.Padding = new Padding(0, 0, 0, 5);
 
-            // Tổng số món
-            int totalItems = order["cart"]?.Count() ?? 0;
-            Label lblItemsCount = new Label();
-            lblItemsCount.Text = $"Số món: {totalItems}";
-            lblItemsCount.Font = new Font("Segoe UI", 9, FontStyle.Regular);
-            lblItemsCount.ForeColor = Color.FromArgb(80, 80, 80);
-            lblItemsCount.Dock = DockStyle.Top;
-            lblItemsCount.Height = 20;
-            lblItemsCount.Padding = new Padding(0, 0, 0, 5);
+            // Danh sách món ăn
+            FlowLayoutPanel itemsPanel = new FlowLayoutPanel();
+            itemsPanel.FlowDirection = FlowDirection.TopDown;
+            itemsPanel.Size = new Size(250, 220);
+            itemsPanel.WrapContents = false;
+            itemsPanel.Dock = DockStyle.Top;
+            itemsPanel.AutoScroll = true;
+
+            foreach (var item in order["cart"])
+            {
+                int foodId = item["id"] != null ? (int)item["id"] : (int)item["food_id"];
+                string foodName = item["name"]?.ToString() ?? item["food_name"]?.ToString() ?? DataCache.GetFoodName(foodId);
+                int qty = (int)item["quantity"];
+                int price = (int)item["price"];
+                int total = price * qty;
+
+                Panel itemPanel = new Panel();
+                itemPanel.Width = 230;
+                itemPanel.Height = 25;
+                itemPanel.Margin = new Padding(0, 0, 0, 5);
+
+                Label lblItemName = new Label();
+                lblItemName.Text = $"• {foodName}";
+                lblItemName.ForeColor = Color.FromArgb(50, 50, 50);
+                lblItemName.Font = new Font("Segoe UI", 9, FontStyle.Regular);
+                lblItemName.AutoSize = true;
+                lblItemName.Location = new Point(0, 5);
+                itemPanel.Controls.Add(lblItemName);
+
+                Label lblItemQty = new Label();
+                lblItemQty.Text = $"x{qty}";
+                lblItemQty.ForeColor = Color.FromArgb(50, 50, 50);
+                lblItemQty.Font = new Font("Segoe UI", 9, FontStyle.Bold);
+                lblItemQty.AutoSize = true;
+                lblItemQty.Location = new Point(200, 5);
+                itemPanel.Controls.Add(lblItemQty);
+
+                itemsPanel.Controls.Add(itemPanel);
+            }
 
             // Tổng tiền
             Label lblTotalPrice = new Label();
             lblTotalPrice.Text = $"Tổng tiền: {order["total_price"]:N0}đ";
             lblTotalPrice.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            lblTotalPrice.ForeColor = Color.FromArgb(220, 120, 0);
+            lblTotalPrice.ForeColor = Color.FromArgb(0, 160, 100);
             lblTotalPrice.Dock = DockStyle.Top;
             lblTotalPrice.Height = 25;
             lblTotalPrice.Padding = new Padding(0, 0, 0, 5);
@@ -146,43 +174,44 @@ namespace DoAn_LTW.ListControl
             Label lblNote = new Label();
             lblNote.Text = $"*Note: {order["note"]}";
             lblNote.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
-            lblNote.ForeColor = Color.FromArgb(100, 100, 100);
+            lblNote.ForeColor = Color.FromArgb(80, 100, 80);
             lblNote.Dock = DockStyle.Top;
             lblNote.Height = 50;
             lblNote.Padding = new Padding(0, 0, 0, 8);
 
-            // Thời gian tạo
-            if (DateTime.TryParse(order["created_at"]?.ToString(), out DateTime createdTime))
+            // Thời gian hoàn thành
+            if (DateTime.TryParse(order["updated_at"]?.ToString(), out DateTime createdTime))
             {
                 Label lblTime = new Label();
                 lblTime.Text = $"Thời gian: {createdTime:HH:mm dd/MM}";
                 lblTime.Font = new Font("Segoe UI", 8, FontStyle.Italic);
-                lblTime.ForeColor = Color.FromArgb(120, 120, 120);
+                lblTime.ForeColor = Color.FromArgb(100, 140, 100);
                 lblTime.Dock = DockStyle.Bottom;
                 lblTime.Height = 18;
                 lblTime.TextAlign = ContentAlignment.MiddleRight;
                 orderPanel.Controls.Add(lblTime);
             }
 
-            Panel separator = new Panel();
-            separator.Height = 1;
-            separator.BackColor = Color.FromArgb(230, 230, 230);
-            separator.Dock = DockStyle.Bottom;
-            separator.Margin = new Padding(0, 5, 0, 5);
+            Panel separatorBottom = new Panel();
+            separatorBottom.Height = 1;
+            separatorBottom.BackColor = Color.FromArgb(179, 177, 177);
+            separatorBottom.Dock = DockStyle.Bottom;
+            separatorBottom.Margin = new Padding(0, 5, 0, 5);
+
+            Panel separatorTop = new Panel();
+            separatorTop.Height = 1;
+            separatorTop.BackColor = Color.FromArgb(179, 177, 177);
+            separatorTop.Dock = DockStyle.Top;
 
             orderPanel.Controls.Add(lblNote);
             orderPanel.Controls.Add(lblTotalPrice);
-            orderPanel.Controls.Add(lblItemsCount);
+            orderPanel.Controls.Add(itemsPanel);
+            orderPanel.Controls.Add(separatorTop);
             orderPanel.Controls.Add(lblCustomer);
             orderPanel.Controls.Add(lblOrderId);
-            orderPanel.Controls.Add(separator);
+            orderPanel.Controls.Add(separatorBottom);
 
             flowPanel.Controls.Add(orderPanel);
-        }
-
-        private void OrderCompleted_Load(object sender, EventArgs e)
-        {
-            // Có thể thêm các xử lý bổ sung khi load
         }
     }
 }

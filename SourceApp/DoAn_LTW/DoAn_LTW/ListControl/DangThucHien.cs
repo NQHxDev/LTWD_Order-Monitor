@@ -7,6 +7,7 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
@@ -45,13 +46,32 @@ namespace DoAn_LTW.ListControl
             }));
         }
 
+        public void LoadOrders()
+        {
+            flowPanel.Controls.Clear();
+
+            var orders = DataCache.GetOrdersByStatus(1);
+
+            foreach (var order in orders)
+            {
+                var ingredients = new List<food_ingredient>();
+                foreach (var item in order["cart"])
+                {
+                    int foodId = (int)item["id"];
+                    ingredients.AddRange(DataCache.GetIngredientsByFoodId(foodId));
+                }
+
+                AddOrderCard(order, ingredients);
+            }
+        }
+
         private void AddOrderCard(JToken order, List<food_ingredient> ingredients)
         {
             Panel orderPanel = new Panel();
             orderPanel.BackColor = Color.White;
             orderPanel.Padding = new Padding(15);
             orderPanel.Margin = new Padding(10, 15, 10, 15);
-            orderPanel.Width = 350;
+            orderPanel.Width = 330;
             orderPanel.Height = 650;
             orderPanel.BorderStyle = BorderStyle.None;
             orderPanel.AutoScroll = true;
@@ -167,7 +187,26 @@ namespace DoAn_LTW.ListControl
 
             btnHoanThanh.Click += (s, e) =>
             {
-                flowPanel.Controls.Remove(orderPanel);
+                int orderId = (int)order["orderId"];
+                try
+                {
+                    using (var context = new OrderMonitor())
+                    {
+                        var entity = context.list_order.FirstOrDefault(o => o.oder_id == orderId);
+                        if (entity != null)
+                        {
+                            entity.status = 2;
+                            entity.updated_at = DateTime.Now;
+                            context.SaveChanges();
+                        }
+                    }
+
+                    flowPanel.Controls.Remove(orderPanel);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi khi cập nhật trạng thái: " + ex.Message);
+                }
             };
 
             Label spacer = new Label();

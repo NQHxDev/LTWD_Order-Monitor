@@ -1,6 +1,6 @@
 ﻿namespace DoAn_LTW.ListControl
 {
-    partial class OrderCompleted
+    partial class OrderReceived
     {
         /// <summary> 
         /// Required designer variable.
@@ -35,7 +35,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "OrderCompleted";
-            this.Load += new System.EventHandler(this.OrderCompleted_Load);
             this.ResumeLayout(false);
 
         }

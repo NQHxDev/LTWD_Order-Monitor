@@ -58,17 +58,27 @@ namespace DoAn_LTW.ListControl
             buttonPanel.Dock = DockStyle.Top;
             buttonPanel.BackColor = Color.FromArgb(60, 60, 60);
 
+            Button btnShowReceived = new Button();
+            btnShowReceived.Text = "Xem Order Đã Nhận";
+            btnShowReceived.Size = new Size(120, 35);
+            btnShowReceived.Location = new Point(10, 10);
+            btnShowReceived.BackColor = Color.FromArgb(0, 120, 215);
+            btnShowReceived.ForeColor = Color.White;
+            btnShowReceived.FlatStyle = FlatStyle.Flat;
+            btnShowReceived.Margin = new Padding(10, 10, 10, 10);
+            btnShowReceived.Click += (s, e) => ShowReceivedOrders();
+
             Button btnShowCompleted = new Button();
-            btnShowCompleted.Text = "Xem Order Đã Nhận";
-            btnShowCompleted.Size = new Size(120, 35);
-            btnShowCompleted.Location = new Point(0, 10);
+            btnShowCompleted.Text = "Xem Order Đã Hoàn Thành";
+            btnShowCompleted.Size = new Size(150, 35);
+            btnShowCompleted.Location = new Point(140, 10);
             btnShowCompleted.BackColor = Color.FromArgb(0, 120, 215);
             btnShowCompleted.ForeColor = Color.White;
             btnShowCompleted.FlatStyle = FlatStyle.Flat;
             btnShowCompleted.Margin = new Padding(10, 10, 10, 10);
-            
-            buttonPanel.Controls.AddRange(new Control[] { btnShowCompleted });
             btnShowCompleted.Click += (s, e) => ShowCompletedOrders();
+
+            buttonPanel.Controls.AddRange(new Control[] { btnShowReceived, btnShowCompleted });
 
             flowPanel = new FlowLayoutPanel();
             flowPanel.Dock = DockStyle.Fill;
@@ -135,7 +145,7 @@ namespace DoAn_LTW.ListControl
                 string foodName = DataCache.GetFoodName((int)item["id"]);
                 int qty = (int)item["quantity"];
                 int price = (int)item["price"];
-                int total = price * qty;
+                //int total = price * qty;
 
                 Panel itemPanel = new Panel();
                 itemPanel.Width = 270;
@@ -256,19 +266,74 @@ namespace DoAn_LTW.ListControl
         {
             int orderId = (int)order["orderId"];
 
-            string reason = Interaction.InputBox(
-                "Nhập lý do hủy đơn:", "Hủy đơn #" + orderId, "");
-
-            if (string.IsNullOrWhiteSpace(reason))
+            using (var dialog = new Form()
             {
-                MessageBox.Show("Bạn phải nhập lý do hủy đơn!", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            UpdateStatusOrder(orderId, -1);
+                Text = $"Hủy đơn #{orderId}",
+                Size = new Size(400, 200),
+                StartPosition = FormStartPosition.CenterScreen,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                MaximizeBox = false,
+                MinimizeBox = false,
+                BackColor = Color.White
+            })
+            {
+                var txtReason = new TextBox()
+                {
+                    Location = new Point(20, 40),
+                    Size = new Size(340, 100),
+                    Multiline = true,
+                    Font = new Font("Segoe UI", 9),
+                    ScrollBars = ScrollBars.Vertical
+                };
 
-            SendOrderStatus(orderId, "cancelled", reason);
-            flowPanel.Controls.Remove(orderPanel);
+                var btnOK = new Button()
+                {
+                    Text = "Xác nhận",
+                    Location = new Point(300, 5),
+                    Size = new Size(75, 30),
+                    BackColor = Color.FromArgb(0, 123, 255),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat
+                };
+
+                var btnCancel = new Button()
+                {
+                    Text = "Hủy",
+                    Location = new Point(285, 120),
+                    Size = new Size(75, 30),
+                    BackColor = Color.FromArgb(108, 117, 125),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat
+                };
+
+                btnOK.Click += (s, e) =>
+                {
+                    if (string.IsNullOrWhiteSpace(txtReason.Text))
+                    {
+                        MessageBox.Show("Vui lòng nhập lý do hủy đơn!", "Thông báo",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    dialog.DialogResult = DialogResult.OK;
+                };
+
+                btnCancel.Click += (s, e) => { dialog.DialogResult = DialogResult.Cancel; };
+
+                dialog.Controls.AddRange(new Control[] {
+            new Label() { Text = "Lý do hủy đơn:", Location = new Point(20, 20), Font = new Font("Segoe UI", 10) },
+            txtReason, btnOK, btnCancel
+        });
+
+                dialog.AcceptButton = btnOK;
+                dialog.CancelButton = btnCancel;
+
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    UpdateStatusOrder(orderId, -1);
+                    SendOrderStatus(orderId, "cancelled", txtReason.Text.Trim());
+                    flowPanel.Controls.Remove(orderPanel);
+                }
+            }
         }
 
         private void UpdateStatusOrder(int orderId, short status)
@@ -285,11 +350,25 @@ namespace DoAn_LTW.ListControl
             }
         }
 
+        private void ShowReceivedOrders()
+        {
+            mainContainer.Visible = false;
+
+            OrderReceived receivedPanel = new OrderReceived();
+            receivedPanel.Dock = DockStyle.Fill;
+            receivedPanel.BackButtonClicked += () =>
+            {
+                this.Controls.Remove(receivedPanel);
+                mainContainer.Visible = true;
+            };
+            this.Controls.Add(receivedPanel);
+        }
+
         private void ShowCompletedOrders()
         {
             mainContainer.Visible = false;
 
-            OrderCompleted completedPanel = new OrderCompleted();
+            OrderComplete completedPanel = new OrderComplete();
             completedPanel.Dock = DockStyle.Fill;
             completedPanel.BackButtonClicked += () =>
             {
@@ -317,7 +396,7 @@ namespace DoAn_LTW.ListControl
         {
             try
             {
-                var pendingOrders = DataCache.GetPendingOrders();
+                var pendingOrders = DataCache.GetOrdersByStatus(0);
 
                 foreach (var orderJson in pendingOrders)
                 {

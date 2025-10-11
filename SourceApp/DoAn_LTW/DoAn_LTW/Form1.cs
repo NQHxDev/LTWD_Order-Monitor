@@ -18,7 +18,8 @@ namespace DoAn_LTW
         private ListControl.Kho dsKho;
         private ListControl.QuanLy quanLy;
         private ListControl.MenuFood menuFood;
-        private ListControl.OrderCompleted orderCompleted;
+        private ListControl.OrderReceived orderReceived;
+        private ListControl.OrderComplete orderComplete;
 
         public Form1()
         {
@@ -46,21 +47,24 @@ namespace DoAn_LTW
             dsKho = new ListControl.Kho();
             menuFood = new ListControl.MenuFood();
             quanLy = new ListControl.QuanLy();
-            orderCompleted = new ListControl.OrderCompleted();
+            orderReceived = new ListControl.OrderReceived();
+            orderComplete = new ListControl.OrderComplete();
 
             danhSachOrder.Dock = DockStyle.Fill;
             dangThucHien.Dock = DockStyle.Fill;
             dsKho.Dock = DockStyle.Fill;
             menuFood.Dock = DockStyle .Fill;
             quanLy.Dock = DockStyle.Fill;
-            orderCompleted.Dock = DockStyle .Fill;
+            orderReceived.Dock = DockStyle .Fill;
+            orderComplete.Dock = DockStyle.Fill;
 
             panel1.Controls.Add(danhSachOrder);
             panel1.Controls.Add(dangThucHien);
             panel1.Controls.Add(dsKho);
             panel1.Controls.Add(menuFood);
             panel1.Controls.Add(quanLy);
-            panel1.Controls.Add(orderCompleted);
+            panel1.Controls.Add(orderReceived);
+            panel1.Controls.Add(orderComplete);
         }
 
 
@@ -83,7 +87,6 @@ namespace DoAn_LTW
             dsKho.Visible = false;
             menuFood.Visible = false;
             quanLy.Visible = false;
-            orderCompleted.Visible = false;
 
             switch (panelName)
             {
@@ -93,6 +96,7 @@ namespace DoAn_LTW
                     highlightButton(btnDanhSach);
                     break;
                 case "DangThucHien":
+                    dangThucHien.LoadOrders();
                     dangThucHien.Visible = true;
                     lblTitle.Text = "Đang Thực Hiện";
                     highlightButton(btnDangThucHien);
@@ -111,9 +115,6 @@ namespace DoAn_LTW
                     quanLy.Visible = true;
                     lblTitle.Text = "Quản lý Bếp";
                     highlightButton(btnQuanLy);
-                    break;
-                case "OrderComplete":
-                    orderCompleted.Visible = true;
                     break;
             }
         }
