@@ -55,7 +55,7 @@ namespace DoAn_LTW
             }
         }
 
-        public static List<JObject> GetPendingOrders()
+        public static List<JObject> GetOrdersByStatus(int status)
         {
             var ordersList = new List<JObject>();
 
@@ -63,12 +63,17 @@ namespace DoAn_LTW
             {
                 using (var context = new OrderMonitor())
                 {
-                    var pendingOrders = context.list_order
+                    var query = context.list_order
                         .Include(o => o.order_detail.Select(od => od.food))
-                        .Where(o => o.status == 0)
-                        .ToList();
+                        .Where(o => o.status == status);
 
-                    foreach (var order in pendingOrders)
+                    // Sắp xếp theo Update At
+                    if (status == 1 || status == 2)
+                        query = query.OrderByDescending(o => o.updated_at);
+
+                    var orders = query.ToList();
+
+                    foreach (var order in orders)
                     {
                         var cartArray = new JArray();
 
@@ -93,63 +98,27 @@ namespace DoAn_LTW
                             ["cart"] = cartArray
                         };
 
+                        // Order đang xử lý và Order hoàn thành
+                        if (status == 1 || status == 2)
+                        {
+                            orderJson["status"] = order.status;
+                            orderJson["created_at"] = order.created_at;
+                            orderJson["updated_at"] = order.updated_at;
+                            orderJson["total_price"] = order.total_price;
+                        }
+
                         ordersList.Add(orderJson);
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.IO.File.AppendAllText("ws_log.txt", $"[{DateTime.Now}] GetPendingOrders error: {ex.Message}\n");
+                System.IO.File.AppendAllText("ws_log.txt",
+                    $"[{DateTime.Now}] GetOrdersByStatus({status}) error: {ex.Message}\n");
             }
 
             return ordersList;
         }
-
-        public static List<JToken> GetCompletedOrders()
-        {
-            using (var context = new OrderMonitor())
-            {
-                var completedOrders = context.list_order
-                    .Include(o => o.order_detail.Select(od => od.food))
-                    .Where(o => o.status == 1)
-                    .OrderByDescending(o => o.updated_at)
-                    .ToList();
-
-                var result = new List<JToken>();
-
-                foreach (var order in completedOrders)
-                {
-                    var cartArray = new JArray();
-                    foreach (var detail in order.order_detail)
-                    {
-                        cartArray.Add(new JObject
-                        {
-                            ["food_id"] = detail.food_id,
-                            ["food_name"] = detail.food?.name ?? "Không rõ món",
-                            ["quantity"] = detail.quantity,
-                            ["price"] = (int)detail.price
-                        });
-                    }
-
-                    var orderJson = new JObject
-                    {
-                        ["orderId"] = order.oder_id,
-                        ["customer_name"] = order.customer_name ?? "Khách lạ",
-                        ["customer_phone"] = order.customer_phone ?? "",
-                        ["note"] = order.note ?? "",
-                        ["total_price"] = order.total_price,
-                        ["cart"] = cartArray,
-                        ["status"] = order.status,
-                        ["created_at"] = order.created_at
-                    };
-
-                    result.Add(orderJson);
-                }
-
-                return result;
-            }
-        }
-
 
         public static string GetFoodName(int id)
         {

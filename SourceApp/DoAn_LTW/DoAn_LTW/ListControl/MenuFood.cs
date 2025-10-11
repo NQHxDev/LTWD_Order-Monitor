@@ -139,6 +139,7 @@ namespace DoAn_LTW.ListControl
             dgvFood.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvFood.RowHeadersVisible = false;
             dgvFood.ReadOnly = true;
+            dgvFood.Padding = new Padding(10);
             dgvFood.RowTemplate.Height = 40;
 
             dgvFood.Columns.Add("food_id", "ID");

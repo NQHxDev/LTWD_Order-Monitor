@@ -160,11 +160,17 @@
     <Compile Include="ListControl\MenuFood.Designer.cs">
       <DependentUpon>MenuFood.cs</DependentUpon>
     </Compile>
-    <Compile Include="ListControl\OrderCompleted.cs">
+    <Compile Include="ListControl\OrderComplete.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ListControl\OrderCompleted.Designer.cs">
-      <DependentUpon>OrderCompleted.cs</DependentUpon>
+    <Compile Include="ListControl\OrderComplete.Designer.cs">
+      <DependentUpon>OrderComplete.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ListControl\OrderReceived.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ListControl\OrderReceived.Designer.cs">
+      <DependentUpon>OrderReceived.cs</DependentUpon>
     </Compile>
     <Compile Include="ListControl\QuanLy.cs">
       <SubType>UserControl</SubType>
@@ -181,8 +187,8 @@
     <EmbeddedResource Include="ListControl\Kho.resx">
       <DependentUpon>Kho.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ListControl\OrderCompleted.resx">
-      <DependentUpon>OrderCompleted.cs</DependentUpon>
+    <EmbeddedResource Include="ListControl\OrderReceived.resx">
+      <DependentUpon>OrderReceived.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
