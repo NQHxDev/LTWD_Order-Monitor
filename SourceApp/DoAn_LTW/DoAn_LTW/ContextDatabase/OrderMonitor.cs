@@ -11,7 +11,6 @@ namespace DoAn_LTW.ContextDatabase
             : base("name=OderMonitor")
         {
         }
-
         public virtual DbSet<account> account { get; set; }
         public virtual DbSet<depot> depot { get; set; }
         public virtual DbSet<export> export { get; set; }
@@ -33,14 +32,14 @@ namespace DoAn_LTW.ContextDatabase
                 .HasForeignKey(e => e.export_by);
 
             modelBuilder.Entity<account>()
-                .HasMany(e => e.import_detail)
-                .WithOptional(e => e.account)
-                .HasForeignKey(e => e.import_by);
-
-            modelBuilder.Entity<account>()
                 .HasMany(e => e.import)
                 .WithOptional(e => e.account)
                 .HasForeignKey(e => e.created_by);
+
+            modelBuilder.Entity<account>()
+                .HasMany(e => e.import_detail)
+                .WithOptional(e => e.account)
+                .HasForeignKey(e => e.import_by);
 
             modelBuilder.Entity<depot>()
                 .Property(e => e.quantity)

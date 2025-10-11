@@ -1,19 +1,17 @@
-const express = require("express");
+import express from 'express';
+
+import {
+   indexPage,
+   getListFood,
+   postListFood,
+} from '../controllers/mainController.js';
+
 const router = express.Router();
 
-const {
-  //* Get
-  indexPage,
-  //* Get Data
-  getListFood,
-  //* POST
-  postListFood,
-} = require("../controllers/mainController");
+router.get('/', indexPage);
 
-router.get("/", indexPage);
+router.get('/api/get-list-food', getListFood);
 
-router.get("/api/get-list-food", getListFood);
+router.post('/api/post-orders-food', postListFood);
 
-router.post("/api/post-orders-food", postListFood);
-
-module.exports = router;
+export default router;
