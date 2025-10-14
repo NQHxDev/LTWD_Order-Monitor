@@ -1,27 +1,18 @@
-﻿using DoAn_LTW.ListControl;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DoAn_LTW
 {
-    public partial class Form1 : Form
+    public partial class FormMain : Form
     {
         private ListControl.DanhSachOder danhSachOrder;
         private ListControl.DangThucHien dangThucHien;
         private ListControl.Kho dsKho;
         private ListControl.QuanLy quanLy;
         private ListControl.MenuFood menuFood;
-        private ListControl.OrderReceived orderReceived;
-        private ListControl.OrderComplete orderComplete;
 
-        public Form1()
+        public FormMain()
         {
             InitializeComponent();
             DataCache.Initialize();
@@ -47,26 +38,19 @@ namespace DoAn_LTW
             dsKho = new ListControl.Kho();
             menuFood = new ListControl.MenuFood();
             quanLy = new ListControl.QuanLy();
-            orderReceived = new ListControl.OrderReceived();
-            orderComplete = new ListControl.OrderComplete();
 
             danhSachOrder.Dock = DockStyle.Fill;
             dangThucHien.Dock = DockStyle.Fill;
             dsKho.Dock = DockStyle.Fill;
             menuFood.Dock = DockStyle .Fill;
             quanLy.Dock = DockStyle.Fill;
-            orderReceived.Dock = DockStyle .Fill;
-            orderComplete.Dock = DockStyle.Fill;
 
             panel1.Controls.Add(danhSachOrder);
             panel1.Controls.Add(dangThucHien);
             panel1.Controls.Add(dsKho);
             panel1.Controls.Add(menuFood);
             panel1.Controls.Add(quanLy);
-            panel1.Controls.Add(orderReceived);
-            panel1.Controls.Add(orderComplete);
         }
-
 
         private void highlightButton(Button selectedButton)
         {

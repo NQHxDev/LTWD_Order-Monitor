@@ -1,11 +1,13 @@
 import { WebSocketServer } from 'ws';
+import dotenv from 'dotenv';
 
 let wss;
+dotenv.config();
 let clients = new Set();
 
 export const initWebSocket = () => {
    // Port Websocket 8081
-   wss = new WebSocketServer({ port: 8081 });
+   wss = new WebSocketServer({ port: process.env.PORT_WS });
 
    wss.on('connection', (ws, req) => {
       clients.add(ws);
@@ -15,15 +17,9 @@ export const initWebSocket = () => {
       ws.on('message', (message) => {
          try {
             const data = JSON.parse(message.toString());
-            console.log('[LOG] Parsed JSON:', data);
 
             if (data.type === 'updateOrderStatus') {
                const { orderId, status, reason } = data.payload;
-               console.log(
-                  `[LOG] Order #${orderId} updated -> ${status}${
-                     reason ? ` (${reason})` : ''
-                  }`
-               );
 
                // Gửi cho các client khác
                const broadcastData = JSON.stringify({
@@ -40,7 +36,7 @@ export const initWebSocket = () => {
                ws.send('Echo: ' + message.toString());
             }
          } catch (err) {
-            console.error('[ERROR] Failed to parse message:', err.message);
+            console.error('Failed to parse message:', err.message);
          }
       });
 

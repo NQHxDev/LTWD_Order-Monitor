@@ -1,6 +1,6 @@
 ﻿namespace DoAn_LTW
 {
-    partial class Form1
+    partial class FormMain
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -95,7 +95,7 @@
             this.btnQuanLy.UseVisualStyleBackColor = true;
             this.btnQuanLy.Click += new System.EventHandler(this.HandleChangePanel);
             // 
-            // Form1
+            // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -108,9 +108,9 @@
             this.Controls.Add(this.btnDangThucHien);
             this.Controls.Add(this.btnDanhSach);
             this.MaximizeBox = false;
-            this.Name = "Form1";
+            this.Name = "FormMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "NQH Dev";
+            this.Text = "NQH Dev - Order Monitor";
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);

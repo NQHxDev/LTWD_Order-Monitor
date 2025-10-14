@@ -22,8 +22,8 @@ export const loadFoodCache = async () => {
          FROM food
       `);
       setFoodCache(foods);
-      console.log(`[/] List Food: ${foods.length} món`);
+      console.log(`{/} Successfully food loaded: ${foods.length}`);
    } catch (error) {
-      console.error(' Lỗi tải danh sách món ăn:', error);
+      console.error('{--} Lỗi tải danh sách món ăn:', error);
    }
 };

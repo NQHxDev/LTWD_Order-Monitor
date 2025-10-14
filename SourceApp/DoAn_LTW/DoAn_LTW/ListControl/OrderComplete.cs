@@ -56,13 +56,14 @@ namespace DoAn_LTW.ListControl
             buttonPanel.Controls.AddRange(new Control[] { btnBack });
             btnBack.Click += (s, e) => BackButtonClicked?.Invoke();
 
-            // Flow panel cho các order card
             flowPanel = new FlowLayoutPanel();
             flowPanel.Dock = DockStyle.Fill;
             flowPanel.AutoScroll = true;
             flowPanel.WrapContents = true;
             flowPanel.FlowDirection = FlowDirection.LeftToRight;
             flowPanel.Padding = new Padding(10);
+            flowPanel.AutoSize = false;
+            flowPanel.AutoSizeMode = AutoSizeMode.GrowOnly;
 
             Label spacer = new Label();
             spacer.Dock = DockStyle.Top;
@@ -127,7 +128,6 @@ namespace DoAn_LTW.ListControl
             itemsPanel.Size = new Size(250, 220);
             itemsPanel.WrapContents = false;
             itemsPanel.Dock = DockStyle.Top;
-            itemsPanel.AutoScroll = true;
 
             foreach (var item in order["cart"])
             {
