@@ -56,7 +56,6 @@ namespace DoAn_LTW.ListControl
             buttonPanel.Controls.AddRange(new Control[] { btnBack });
             btnBack.Click += (s, e) => BackButtonClicked?.Invoke();
 
-            // Flow panel cho các order card
             flowPanel = new FlowLayoutPanel();
             flowPanel.Dock = DockStyle.Fill;
             flowPanel.AutoScroll = true;

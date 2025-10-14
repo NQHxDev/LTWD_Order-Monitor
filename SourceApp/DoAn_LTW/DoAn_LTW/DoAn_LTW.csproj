@@ -142,6 +142,24 @@
     <Compile Include="ListControl\DangThucHien.Designer.cs">
       <DependentUpon>DangThucHien.cs</DependentUpon>
     </Compile>
+    <Compile Include="ListControl\DepotExport.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ListControl\DepotExport.Designer.cs">
+      <DependentUpon>DepotExport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ListControl\DepotImport.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ListControl\DepotImport.Designer.cs">
+      <DependentUpon>DepotImport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ListControl\DepotOrder.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ListControl\DepotOrder.Designer.cs">
+      <DependentUpon>DepotOrder.cs</DependentUpon>
+    </Compile>
     <Compile Include="ListControl\Kho.cs">
       <SubType>UserControl</SubType>
     </Compile>

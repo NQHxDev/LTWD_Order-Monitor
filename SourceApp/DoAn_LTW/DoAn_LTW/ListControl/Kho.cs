@@ -85,7 +85,7 @@ namespace DoAn_LTW.ListControl
             btnOrder.ForeColor = Color.White;
             btnOrder.FlatStyle = FlatStyle.Flat;
             btnOrder.Margin = new Padding(10, 10, 10, 10);
-            //btnOrder.Click += (s, e) => .....();
+            btnOrder.Click += (s, e) => ViewDepotOrder();
 
             Button btnImport = new Button();
             btnImport.Text = "Nhập kho";
@@ -94,7 +94,7 @@ namespace DoAn_LTW.ListControl
             btnImport.ForeColor = Color.White;
             btnImport.FlatStyle = FlatStyle.Flat;
             btnImport.Margin = new Padding(10, 10, 10, 10);
-            //btnImport.Click += (s, e) => .....();
+            btnImport.Click += (s, e) => ViewDepotImport();
 
             Button btnExport = new Button();
             btnExport.Text = "Xuất kho";
@@ -103,7 +103,7 @@ namespace DoAn_LTW.ListControl
             btnExport.ForeColor = Color.White;
             btnExport.FlatStyle = FlatStyle.Flat;
             btnExport.Margin = new Padding(10, 10, 10, 10);
-            //btnExport.Click += (s, e) => .....();
+            btnExport.Click += (s, e) => ViewDepotExport();
 
             Button btnLogout = new Button();
             btnLogout.Text = "Đăng xuất";
@@ -114,7 +114,7 @@ namespace DoAn_LTW.ListControl
             btnLogout.Margin = new Padding(10, 10, 10, 10);
             btnLogout.Click += (s, e) =>
             {
-                DataCache.Logout();
+                DataCache.Logout("Staff");
                 LoadView();
             };
 
@@ -240,7 +240,48 @@ namespace DoAn_LTW.ListControl
             }
         }
 
+        private void ViewDepotExport()
+        {
+            mainContainer.Visible = false;
 
+            DepotExport depotExportPanel = new DepotExport();
+            depotExportPanel.Dock = DockStyle.Fill;
+            depotExportPanel.BackButtonClicked += () =>
+            {
+                this.Controls.Remove(depotExportPanel);
+                mainContainer.Visible = true;
+            };
+            this.Controls.Add(depotExportPanel);
+        }
+
+        private void ViewDepotImport()
+        {
+            mainContainer.Visible = false;
+
+            DepotImport depotImportPanel = new DepotImport();
+            depotImportPanel.Dock = DockStyle.Fill;
+            depotImportPanel.BackButtonClicked += () =>
+            {
+                this.Controls.Remove(depotImportPanel);
+                mainContainer.Visible = true;
+            };
+            this.Controls.Add(depotImportPanel);
+        }
+
+        private void ViewDepotOrder()
+        {
+            mainContainer.Visible = false;
+
+            DepotOrder depotOrderanel = new DepotOrder();
+            depotOrderanel.Dock = DockStyle.Fill;
+            depotOrderanel.BackButtonClicked += () =>
+            {
+                this.Controls.Remove(depotOrderanel);
+                mainContainer.Visible = true;
+            };
+            this.Controls.Add(depotOrderanel);
+        }
+        
 
     }
 }

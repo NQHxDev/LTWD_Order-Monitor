@@ -1,12 +1,5 @@
-﻿using DoAn_LTW.ListControl;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace DoAn_LTW
@@ -18,9 +11,6 @@ namespace DoAn_LTW
         private ListControl.Kho dsKho;
         private ListControl.QuanLy quanLy;
         private ListControl.MenuFood menuFood;
-        private ListControl.OrderReceived orderReceived;
-        private ListControl.OrderComplete orderComplete;
-        private ListControl.Login panelLogin;
 
         public FormMain()
         {
@@ -48,27 +38,18 @@ namespace DoAn_LTW
             dsKho = new ListControl.Kho();
             menuFood = new ListControl.MenuFood();
             quanLy = new ListControl.QuanLy();
-            orderReceived = new ListControl.OrderReceived();
-            orderComplete = new ListControl.OrderComplete();
-            panelLogin = new ListControl.Login();
 
             danhSachOrder.Dock = DockStyle.Fill;
             dangThucHien.Dock = DockStyle.Fill;
             dsKho.Dock = DockStyle.Fill;
             menuFood.Dock = DockStyle .Fill;
             quanLy.Dock = DockStyle.Fill;
-            orderReceived.Dock = DockStyle .Fill;
-            orderComplete.Dock = DockStyle.Fill;
-            panelLogin.Dock = DockStyle.Fill;
 
             panel1.Controls.Add(danhSachOrder);
             panel1.Controls.Add(dangThucHien);
             panel1.Controls.Add(dsKho);
             panel1.Controls.Add(menuFood);
             panel1.Controls.Add(quanLy);
-            panel1.Controls.Add(orderReceived);
-            panel1.Controls.Add(orderComplete);
-            panel1.Controls.Add(panelLogin);
         }
 
         private void highlightButton(Button selectedButton)

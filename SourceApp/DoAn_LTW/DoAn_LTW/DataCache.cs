@@ -31,9 +31,16 @@ namespace DoAn_LTW
             }
         }
 
-        public static void Logout()
+        public static void Logout(string loginIn)
         {
-            CurrentUser = null;
+            if (loginIn == "Admin")
+            {
+                CurrentAdmin = null;
+            }
+            else
+            {
+                CurrentUser = null;
+            }
         }
 
         private static bool isLoaded = false;

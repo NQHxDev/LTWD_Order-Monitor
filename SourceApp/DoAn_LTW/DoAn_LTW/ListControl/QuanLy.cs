@@ -42,7 +42,7 @@ namespace DoAn_LTW.ListControl
         {
             mainContainer.Controls.Clear();
 
-            if (!DataCache.IsLoggedIn)
+            if (!DataCache.IsLoggedInAdmin)
             {
                 var loginPanel = new Login();
                 loginPanel.Dock = DockStyle.Fill;
@@ -56,10 +56,13 @@ namespace DoAn_LTW.ListControl
                 // Xử lý Đăng nhập sai Role
                 loginPanel.OnLoginAttempt += (userLogin, isValid) =>
                 {
-                    if (!isValid || userLogin != null)
+                    if (!isValid)
                     {
-                        DataCache.Logout();
-                        LoadView();
+                        if (userLogin != null)
+                        {
+                            DataCache.Logout();
+                            LoadView();
+                        }
                     }
                 };
                 mainContainer.Controls.Add(loginPanel);
@@ -121,7 +124,7 @@ namespace DoAn_LTW.ListControl
             btnLogout.Margin = new Padding(10, 10, 10, 10);
             btnLogout.Click += (s, e) =>
             {
-                DataCache.Logout();
+                DataCache.Logout("Admin");
                 LoadView();
             };
 
