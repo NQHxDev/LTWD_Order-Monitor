@@ -201,6 +201,7 @@ namespace DoAn_LTW.ListControl
                         }
                     }
 
+                    WebSocketManager.SendOrderStatus(orderId, "completed");
                     flowPanel.Controls.Remove(orderPanel);
                 }
                 catch (Exception ex)

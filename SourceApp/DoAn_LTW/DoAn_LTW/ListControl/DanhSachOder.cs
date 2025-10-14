@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace DoAn_LTW.ListControl
 {
@@ -237,7 +238,7 @@ namespace DoAn_LTW.ListControl
             btnNhanDon.BackColor = Color.FromArgb(120, 120, 120);
 
             int orderId = (int)order["orderId"];
-            SendOrderStatus(orderId, "accepted");
+            WebSocketManager.SendOrderStatus(orderId, "accepted");
 
             var allIngredients = new List<food_ingredient>();
 
@@ -261,6 +262,8 @@ namespace DoAn_LTW.ListControl
             await Task.Delay(2000);
             flowPanel.Controls.Remove(orderPanel);
         }
+
+        private string staffFeedback = string.Empty;
 
         private void HandleCancelOrder(JToken order, Panel orderPanel)
         {
@@ -329,8 +332,9 @@ namespace DoAn_LTW.ListControl
 
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
+                    staffFeedback = txtReason.Text.Trim();
                     UpdateStatusOrder(orderId, -1);
-                    SendOrderStatus(orderId, "cancelled", txtReason.Text.Trim());
+                    WebSocketManager.SendOrderStatus(orderId, "cancelled", txtReason.Text.Trim());
                     flowPanel.Controls.Remove(orderPanel);
                 }
             }
@@ -345,6 +349,11 @@ namespace DoAn_LTW.ListControl
                 {
                     entity.status = status;
                     entity.updated_at = DateTime.Now;
+                    if (status == -1 && !string.IsNullOrWhiteSpace(staffFeedback))
+                    {
+                        entity.staff_feedback = staffFeedback;
+                        staffFeedback = string.Empty;
+                    }
                     context.SaveChanges();
                 }
             }
@@ -407,23 +416,6 @@ namespace DoAn_LTW.ListControl
             {
                 Log("LoadPendingOrders error: " + ex.Message);
             }
-        }
-
-        private void SendOrderStatus(int orderId, string status, string reason = "")
-        {
-            var data = new
-            {
-                type = "updateOrderStatus",
-                payload = new
-                {
-                    orderId = orderId,
-                    status = status,
-                    reason = reason
-                }
-            };
-
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(data);
-            WebSocketManager.Send(json);
         }
 
         private void HandleWebSocketMessage(string msg)

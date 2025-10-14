@@ -1,7 +1,7 @@
 const orderListEl = document.getElementById('orderList');
 let orders = JSON.parse(localStorage.getItem('orders')) || [];
 
-// Render danh sách Order
+// Hàm render danh sách đơn hàng
 function renderOrders() {
    orderListEl.innerHTML = '';
 
@@ -14,6 +14,29 @@ function renderOrders() {
       return;
    }
 
+   // Sắp xếp đơn hàng
+   orders.sort((a, b) => {
+      const isACompletedOrCancelled =
+         a.status === 'completed' || a.status === 'cancelled';
+      const isBCompletedOrCancelled =
+         b.status === 'completed' || b.status === 'cancelled';
+
+      // Ưu tiên đơn chưa hoàn thành / hủy lên trước
+      if (!isACompletedOrCancelled && isBCompletedOrCancelled) return -1;
+      if (isACompletedOrCancelled && !isBCompletedOrCancelled) return 1;
+
+      // Nếu cả 2 đều chưa hoàn thành/hủy → sắp theo created_at tăng dần
+      if (!isACompletedOrCancelled && !isBCompletedOrCancelled) {
+         return new Date(a.created_at) - new Date(b.created_at);
+      }
+
+      // Nếu cả 2 đều hoàn thành/hủy → sắp theo updated_at giảm dần
+      return (
+         new Date(b.updated_at || b.created_at) -
+         new Date(a.updated_at || a.created_at)
+      );
+   });
+
    // Duyệt từng đơn hàng
    orders.forEach((order, index) => {
       if (!order) return;
@@ -22,8 +45,6 @@ function renderOrders() {
       const totalFormatted = (order.total_price || 0).toLocaleString('vi-VN');
       const statusText = convertStatus(order.status);
       const statusClass = `status-${order.status}`;
-
-      console.log('Cart data:', order.cart);
 
       // Danh sách món ăn
       const cartHTML = Array.isArray(order.cart)
@@ -45,6 +66,12 @@ function renderOrders() {
               .join('')
          : '<em>Không có món ăn</em>';
 
+      // Nếu bị hủy thì thêm lý do
+      const cancelReasonHTML =
+         order.status === 'cancelled' && order.reason
+            ? `<p class="cancel-reason"><strong>Lý do hủy:</strong> ${order.reason}</p>`
+            : '';
+
       // Tạo phần tử đơn hàng
       const div = document.createElement('div');
       div.classList.add('order-item');
@@ -53,18 +80,35 @@ function renderOrders() {
             <h3>Đơn hàng #${orderId}</h3>
             <span class="order-status ${statusClass}">${statusText}</span>
          </div>
+
          <div class="order-info">
-            <p><strong>Khách hàng:</strong> ${order.customer_name || 'N/A'}</p>
-            <p><strong>SĐT:</strong> ${order.customer_phone || 'N/A'}</p>
-            <p><strong>Ghi chú:</strong> ${order.note || 'Không có'}</p>
+            <div class="order-customer">
+               <p><strong>Khách hàng:</strong> ${
+                  order.customer_name || 'N/A'
+               }</p>
+               <p><strong>SĐT:</strong> ${order.customer_phone || 'N/A'}</p>
+            </div>
+
+            <div class="order-notes">
+               <p><strong>Ghi chú:</strong> ${order.note || 'Không có'}</p>
+               ${
+                  order.status === 'cancelled' && order.reason
+                     ? `<p class="cancel-reason"><strong>Lý do hủy:</strong> ${order.reason}</p>`
+                     : ''
+               }
+            </div>
          </div>
+
          <div class="order-cart">
             <h4>Danh sách món</h4>
             ${cartHTML}
          </div>
+
          <div class="order-footer">
             <strong>Tổng tiền:</strong> ${totalFormatted}đ
-            <span class="order-date">${formatDate(order.created_at)}</span>
+            <span class="order-date">${formatDate(
+               order.updated_at || order.created_at
+            )}</span>
          </div>
       `;
 
@@ -72,14 +116,14 @@ function renderOrders() {
    });
 }
 
-// Hàm chuyển trạng thái Order
+// Chuyển đổi trạng thái sang text
 function convertStatus(status) {
    switch (status) {
       case 0:
          return 'Chờ xác nhận';
       case 'accepted':
          return 'Đang chế biến';
-      case 2:
+      case 'completed':
          return 'Hoàn thành';
       case 'cancelled':
          return 'Đã hủy';
@@ -88,7 +132,7 @@ function convertStatus(status) {
    }
 }
 
-// Format thời gian
+// Định dạng ngày giờ
 function formatDate(dateStr) {
    if (!dateStr) return '';
    const date = new Date(dateStr);
@@ -104,7 +148,7 @@ function formatDate(dateStr) {
 // Gọi render khi load trang
 renderOrders();
 
-// Kết nối WebSocket
+// WebSocket nhận trạng thái mới
 const ws = new WebSocket('ws://localhost:8081');
 
 ws.onopen = () => console.log('[WS] Connected to server');
@@ -121,6 +165,7 @@ ws.onmessage = (event) => {
          if (order) {
             order.status = status;
             if (reason) order.reason = reason;
+            order.updated_at = new Date().toISOString();
             localStorage.setItem('orders', JSON.stringify(orders));
             renderOrders();
          }

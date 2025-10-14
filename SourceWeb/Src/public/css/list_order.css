@@ -33,7 +33,6 @@
 .order-info {
    display: flex;
    justify-content: space-between;
-   align-items: center;
    margin-bottom: 6px;
 }
 .status {
@@ -45,7 +44,7 @@
 .status-pending {
    background: #ffd54f;
 }
-.status-complete {
+.status-completed {
    background: #4caf50;
    color: #fff;
 }
@@ -56,6 +55,14 @@
 .status-accepted {
    background: #2196f3;
    color: #fff;
+}
+.cancel-reason {
+   background: #ffe5e5;
+   color: #c0392b;
+   border-radius: 6px;
+   padding: 6px 10px;
+   margin-top: 6px;
+   font-size: 14px;
 }
 .back-btn {
    background: linear-gradient(135deg, #36d1dc, #5b86e5);
@@ -160,13 +167,11 @@ a {
 }
 
 .cart-item span:nth-child(1) {
-   /* Tên món */
    word-break: break-word;
    overflow-wrap: break-word;
 }
 
 .cart-item span:nth-child(2) {
-   /* Số lượng */
    text-align: center;
    min-width: 50px;
 }
@@ -175,4 +180,60 @@ a {
    text-align: right;
    min-width: 120px;
    font-weight: 500;
+}
+.order-info {
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+   margin-bottom: 10px;
+   font-size: 15px;
+   color: #333;
+}
+
+.order-customer {
+   display: flex;
+   justify-content: space-between;
+   flex-wrap: wrap;
+   border-bottom: 1px dashed #ddd;
+   padding-bottom: 6px;
+   text-align: center;
+}
+
+.order-customer p {
+   margin: 0;
+   flex: 1;
+}
+
+.order-customer p:first-child {
+   margin-right: 15px;
+}
+
+.order-notes {
+   margin-top: 6px;
+   margin-left: 0;
+   padding-left: 0;
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start;
+}
+
+.order-notes p {
+   margin: 4px 0;
+   line-height: 1.5;
+   width: 100%;
+   text-align: left;
+}
+
+.cancel-reason {
+   background: #ffeaea;
+   color: #b91c1c;
+   border-radius: 6px;
+   padding: 8px 12px;
+   margin-top: 6px;
+   margin-left: 0;
+   font-size: 14px;
+   border-left: 4px solid #e74c3c;
+   width: 100%;
+   box-sizing: border-box;
+   text-align: left;
 }
