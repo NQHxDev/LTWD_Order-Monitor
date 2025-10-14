@@ -2,6 +2,7 @@ import express from 'express';
 
 import {
    indexPage,
+   listOrderPage,
    getListFood,
    postListFood,
 } from '../controllers/mainController.js';
@@ -9,6 +10,8 @@ import {
 const router = express.Router();
 
 router.get('/', indexPage);
+
+router.get('/list-order', listOrderPage);
 
 router.get('/api/get-list-food', getListFood);
 

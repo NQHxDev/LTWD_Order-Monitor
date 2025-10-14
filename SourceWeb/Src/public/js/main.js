@@ -161,6 +161,12 @@ if (menuFood) {
                   `Đặt Đơn thành công! Mã đơn: ${data.orderId}`,
                   'success'
                );
+
+               const existingOrders =
+                  JSON.parse(localStorage.getItem('orders')) || [];
+               existingOrders.push(data.orderData);
+               localStorage.setItem('orders', JSON.stringify(existingOrders));
+
                cart = [];
                updateCartUI();
                document.getElementById('customerName').value = '';

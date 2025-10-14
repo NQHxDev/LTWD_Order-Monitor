@@ -87,7 +87,6 @@ namespace DoAn_LTW
             dsKho.Visible = false;
             menuFood.Visible = false;
             quanLy.Visible = false;
-            orderCompleted.Visible = false;
 
             switch (panelName)
             {
