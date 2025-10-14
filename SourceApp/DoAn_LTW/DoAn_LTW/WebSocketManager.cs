@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Threading;
 using WebSocketSharp;
 
@@ -23,6 +24,30 @@ namespace DoAn_LTW
             currentUrl = url;
             CreateWebSocket();
             ws.Connect();
+        }
+
+        public static void SendOrderStatus(int orderId, string status, string reason = "")
+        {
+            try
+            {
+                var data = new
+                {
+                    type = "updateOrderStatus",
+                    payload = new
+                    {
+                        orderId = orderId,
+                        status = status,
+                        reason = reason
+                    }
+                };
+
+                string json = JsonConvert.SerializeObject(data);
+                Send(json);
+            }
+            catch (Exception ex)
+            {
+                Log($"SendOrderStatus error: {ex.Message}");
+            }
         }
 
         private static void CreateWebSocket()
@@ -127,5 +152,11 @@ namespace DoAn_LTW
         }
 
         public static bool IsConnected => ws?.IsAlive == true;
+
+        private static void Log(string message)
+        {
+            string logPath = System.Windows.Forms.Application.StartupPath + "\\ws_log.txt";
+            System.IO.File.AppendAllText(logPath, DateTime.Now + " - " + message + Environment.NewLine);
+        }
     }
 }

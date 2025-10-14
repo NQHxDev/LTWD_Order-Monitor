@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Order List</title>
+      <link rel="stylesheet" href="css/style.css" />
+      <link rel="stylesheet" href="css/index.css" />
+      <link rel="stylesheet" href="css/list_order.css" />
+   </head>
+   <body>
+      <div class="page-loader" id="pageLoader">
+         <div class="loader-circle"></div>
+         <div class="loader-text"></div>
+      </div>
+
+      <div class="order-container">
+         <div class="order-header">
+            <h2>Danh sách đơn hàng của bạn</h2>
+            <button class="back-btn">
+               <a href="/">← Quay lại Menu</a>
+            </button>
+         </div>
+
+         <div id="orderList" class="order-list"></div>
+      </div>
+   </body>
+   <script>
+      const listFood = <%- JSON.stringify(listFood) %>;
+   </script>
+   <script src="js/list_order.js"></script>
+</html>

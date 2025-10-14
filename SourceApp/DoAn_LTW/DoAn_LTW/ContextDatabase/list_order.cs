@@ -33,6 +33,8 @@ namespace DoAn_LTW.ContextDatabase
         [StringLength(10)]
         public string customer_phone { get; set; }
 
+        public string staff_feedback { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<order_detail> order_detail { get; set; }
     }
