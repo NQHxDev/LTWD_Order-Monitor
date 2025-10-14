@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Security.Principal;
 
 namespace DoAn_LTW
 {
@@ -13,6 +14,27 @@ namespace DoAn_LTW
         public static Dictionary<int, item> Items { get; private set; } = new Dictionary<int, item>();
         public static Dictionary<int, unit> Units { get; private set; } = new Dictionary<int, unit>();
         public static Dictionary<int, List<food_ingredient>> FoodIngredients { get; private set; } = new Dictionary<int, List<food_ingredient>>();
+        public static account CurrentUser { get; private set; }
+        public static bool IsLoggedIn => CurrentUser != null;
+        public static account CurrentAdmin { get; private set; }
+        public static bool IsLoggedInAdmin => CurrentAdmin != null;
+
+        public static void Login(account userLogin, string loginIn)
+        {
+            if (loginIn == "Admin")
+            {
+                CurrentAdmin = userLogin;
+            }
+            else
+            {
+                CurrentUser = userLogin;
+            }
+        }
+
+        public static void Logout()
+        {
+            CurrentUser = null;
+        }
 
         private static bool isLoaded = false;
 

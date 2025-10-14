@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace DoAn_LTW
 {
-    public partial class Form1 : Form
+    public partial class FormMain : Form
     {
         private ListControl.DanhSachOder danhSachOrder;
         private ListControl.DangThucHien dangThucHien;
@@ -20,8 +20,9 @@ namespace DoAn_LTW
         private ListControl.MenuFood menuFood;
         private ListControl.OrderReceived orderReceived;
         private ListControl.OrderComplete orderComplete;
+        private ListControl.Login panelLogin;
 
-        public Form1()
+        public FormMain()
         {
             InitializeComponent();
             DataCache.Initialize();
@@ -49,6 +50,7 @@ namespace DoAn_LTW
             quanLy = new ListControl.QuanLy();
             orderReceived = new ListControl.OrderReceived();
             orderComplete = new ListControl.OrderComplete();
+            panelLogin = new ListControl.Login();
 
             danhSachOrder.Dock = DockStyle.Fill;
             dangThucHien.Dock = DockStyle.Fill;
@@ -57,6 +59,7 @@ namespace DoAn_LTW
             quanLy.Dock = DockStyle.Fill;
             orderReceived.Dock = DockStyle .Fill;
             orderComplete.Dock = DockStyle.Fill;
+            panelLogin.Dock = DockStyle.Fill;
 
             panel1.Controls.Add(danhSachOrder);
             panel1.Controls.Add(dangThucHien);
@@ -65,8 +68,8 @@ namespace DoAn_LTW
             panel1.Controls.Add(quanLy);
             panel1.Controls.Add(orderReceived);
             panel1.Controls.Add(orderComplete);
+            panel1.Controls.Add(panelLogin);
         }
-
 
         private void highlightButton(Button selectedButton)
         {

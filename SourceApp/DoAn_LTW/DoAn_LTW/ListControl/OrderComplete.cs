@@ -63,6 +63,8 @@ namespace DoAn_LTW.ListControl
             flowPanel.WrapContents = true;
             flowPanel.FlowDirection = FlowDirection.LeftToRight;
             flowPanel.Padding = new Padding(10);
+            flowPanel.AutoSize = false;
+            flowPanel.AutoSizeMode = AutoSizeMode.GrowOnly;
 
             Label spacer = new Label();
             spacer.Dock = DockStyle.Top;
@@ -127,7 +129,6 @@ namespace DoAn_LTW.ListControl
             itemsPanel.Size = new Size(250, 220);
             itemsPanel.WrapContents = false;
             itemsPanel.Dock = DockStyle.Top;
-            itemsPanel.AutoScroll = true;
 
             foreach (var item in order["cart"])
             {

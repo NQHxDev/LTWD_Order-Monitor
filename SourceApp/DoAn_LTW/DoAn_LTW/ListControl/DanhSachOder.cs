@@ -17,7 +17,7 @@ namespace DoAn_LTW.ListControl
 {
     public partial class DanhSachOder : UserControl
     {
-        Panel mainContainer;
+        private Panel mainContainer;
         private FlowLayoutPanel flowPanel;
 
         private static Dictionary<int, string> listFood = new Dictionary<int, string>();
