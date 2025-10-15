@@ -202,8 +202,7 @@ namespace Order_Monitor.ListControl
                         lblDetail.Font = new Font("Tahoma", 10);
                         lblDetail.Padding = new Padding(0, 5, 0, 5);
                         lblDetail.Text =
-                            $"Số lượng: {dep.quantity}\n" +
-                            $"Đơn vị: {donVi}\n\n" +
+                            $"Số lượng: {dep.quantity} {donVi}\n\n" +
                             $"Giá nhập gần nhất: {item.import_price:N0} VNĐ\n" +
                             $"Ngày nhập gần nhất: {dep.last_updated?.ToString("dd/MM/yyyy") ?? ""}";
 

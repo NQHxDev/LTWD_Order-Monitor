@@ -33,7 +33,12 @@ namespace Order_Monitor.ContextDatabase
 
             modelBuilder.Entity<account>()
                 .HasMany(e => e.import)
-                .WithOptional(e => e.account)
+                .WithOptional(e => e.created_by_account)
+                .HasForeignKey(e => e.created_by);
+
+            modelBuilder.Entity<account>()
+                .HasMany(e => e.import)
+                .WithOptional(e => e.updated_by_account)
                 .HasForeignKey(e => e.created_by);
 
             modelBuilder.Entity<account>()
