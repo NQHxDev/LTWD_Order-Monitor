@@ -78,10 +78,10 @@ namespace Order_Monitor.ListControl
                 WrapContents = true
             };
 
-            Panel panelImport = new Panel()
+            Panel panelImport = new Panel
             {
                 Dock = DockStyle.Bottom,
-                Height = 120,
+                Height = 250,
                 Padding = new Padding(10),
                 BackColor = Color.FromArgb(50, 50, 50)
             };
@@ -98,89 +98,139 @@ namespace Order_Monitor.ListControl
 
         private void loadFormImport(Panel panelImport)
         {
-            Label lblChoose = new Label()
+            int leftStart = 10;
+            int topStart = 10;
+
+            Font labelFont = new Font("Tahoma", 12);
+            Font textBoxFont = new Font("Tahoma", 12);
+            Font buttonFont = new Font("Tahoma", 12);
+
+            Label lblNewItem = new Label
             {
-                Text = "Chọn Item hoặc nhập Item mới:",
+                Text = "Tên Item mới:",
                 ForeColor = Color.White,
-                Left = 10,
-                Top = 10,
-                Width = 300
+                Left = leftStart,
+                Top = topStart,
+                Width = 250,
+                Font = labelFont
+            };
+
+            txtNewItemName = new TextBox
+            {
+                Width = 250,
+                Left = leftStart,
+                Top = topStart + 20,
+                Font = textBoxFont
+            };
+
+            Label lblSelectItem = new Label
+            {
+                Text = "Chọn Item:",
+                ForeColor = Color.White,
+                Left = leftStart,
+                Top = topStart + 50,
+                Width = 150,
+                Font = labelFont
             };
 
             cmbItems = new ComboBox()
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Width = 200,
-                Left = 10,
-                Top = 35
+                Width = 250,
+                Left = leftStart,
+                Top = topStart + 75,
+                Font = textBoxFont
             };
 
-            txtNewItemName = new TextBox()
+            Label lblUnit = new Label
             {
-                Width = 180,
-                Left = 220,
-                Top = 35
+                Text = "Đơn vị:",
+                ForeColor = Color.White,
+                Left = leftStart + 130,
+                Top = topStart + 110,
+                Width = 100,
+                Font = labelFont
             };
 
             cmbUnits = new ComboBox()
             {
-                Width = 100,
-                Left = 410,
-                Top = 35
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Width = 120,
+                Left = leftStart + 130,
+                Top = topStart + 135,
+                Font = textBoxFont
+            };
+
+            Label lblQty = new Label
+            {
+                Text = "Số lượng:",
+                ForeColor = Color.White,
+                Left = leftStart,
+                Top = topStart + 110,
+                Width = 130,
+                Font = labelFont
             };
 
             txtQuantity = new TextBox()
             {
-                Width = 100,
-                Left = 520,
-                Top = 35
+                Width = 115,
+                Left = leftStart,
+                Top = topStart + 135,
+                Font = textBoxFont
             };
 
-            btnAdd = new Button()
+            btnAdd = new Button
             {
                 Text = "Thêm",
-                Left = 630,
-                Top = 33,
-                Width = 80,
+                Left = leftStart,
+                Top = topStart + 190,
+                Width = 100,
+                Height = 30,
                 BackColor = Color.FromArgb(0, 122, 204),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Font = buttonFont
             };
             btnAdd.Click += BtnAdd_Click;
 
-            btnSave = new Button()
+            btnSave = new Button
             {
                 Text = "Lưu",
-                Left = 10,
-                Top = 75,
+                Left = leftStart + 270,
+                Top = topStart + 20,
                 Width = 120,
+                Height = 30,
                 BackColor = Color.SeaGreen,
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Font = buttonFont
             };
             btnSave.Click += BtnSave_Click;
 
-            btnCancel = new Button()
+            btnCancel = new Button
             {
                 Text = "Hủy",
-                Left = 140,
-                Top = 75,
+                Left = leftStart + 270,
+                Top = topStart + 65,
                 Width = 120,
+                Height = 33,
                 BackColor = Color.IndianRed,
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Font = buttonFont
             };
             btnCancel.Click += (s, e) => ClearAll();
 
-            panelImport.Controls.Add(lblChoose);
-            panelImport.Controls.Add(cmbItems);
-            panelImport.Controls.Add(txtNewItemName);
-            panelImport.Controls.Add(cmbUnits);
-            panelImport.Controls.Add(txtQuantity);
-            panelImport.Controls.Add(btnAdd);
-            panelImport.Controls.Add(btnSave);
-            panelImport.Controls.Add(btnCancel);
+            panelImport.Controls.AddRange(new Control[]
+            {
+                lblNewItem, txtNewItemName,
+                lblSelectItem, cmbItems,
+                lblUnit, cmbUnits,
+                lblQty, txtQuantity,
+                btnAdd, btnSave, btnCancel
+            });
         }
+
 
         private void LoadAvailableItems()
         {
@@ -214,7 +264,7 @@ namespace Order_Monitor.ListControl
             {
                 // Item mới
                 itemName = txtNewItemName.Text.Trim();
-                unitId = (int)cmbUnits.SelectedValue;
+                unitId = (int) cmbUnits.SelectedValue + 1;
                 selectedItems.Add(new ExportItem { ItemName = itemName, UnitId = unitId, Quantity = qty, IsNew = true });
             }
             else
@@ -228,7 +278,7 @@ namespace Order_Monitor.ListControl
                 }
 
                 itemName = selected.name;
-                itemId = selected.item_id;
+                itemId = selected.item_id + 1;
                 unitId = selected.unit_id;
                 selectedItems.Add(new ExportItem { ItemId = itemId.Value, ItemName = itemName, UnitId = unitId, Quantity = qty, IsNew = false });
             }
