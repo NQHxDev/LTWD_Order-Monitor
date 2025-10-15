@@ -60,7 +60,7 @@ namespace DoAn_LTW.ListControl
                     {
                         if (userLogin != null)
                         {
-                            DataCache.Logout();
+                            DataCache.Logout("Admin");
                             LoadView();
                         }
                     }
