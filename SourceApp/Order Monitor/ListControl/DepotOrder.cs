@@ -21,7 +21,7 @@ namespace Order_Monitor.ListControl
         private Button btnSave;
         private Button btnCancel;
 
-        private List<ExportItem> selectedItems = new List<ExportItem>();
+        private List<DepotOrderItem> selectedItems = new List<DepotOrderItem>();
         private List<item> availableItems;
 
         public event Action BackButtonClicked;
@@ -269,7 +269,7 @@ namespace Order_Monitor.ListControl
                 return;
             }
 
-            ExportItem existingItem = null;
+            DepotOrderItem existingItem = null;
 
             if (!string.IsNullOrWhiteSpace(txtNewItemName.Text))
             {
@@ -288,7 +288,7 @@ namespace Order_Monitor.ListControl
                 }
                 else
                 {
-                    selectedItems.Add(new ExportItem
+                    selectedItems.Add(new DepotOrderItem
                     {
                         ItemName = itemName,
                         UnitId = unitId,
@@ -320,7 +320,7 @@ namespace Order_Monitor.ListControl
                 }
                 else
                 {
-                    selectedItems.Add(new ExportItem
+                    selectedItems.Add(new DepotOrderItem
                     {
                         ItemId = itemId,
                         ItemName = itemName,
@@ -467,7 +467,7 @@ namespace Order_Monitor.ListControl
         }
     }
 
-    public class ExportItem
+    public class DepotOrderItem
     {
         public int? ItemId { get; set; }
         public string ItemName { get; set; }
