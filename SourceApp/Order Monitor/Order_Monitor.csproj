@@ -7,7 +7,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F3881667-82B2-4A3F-BD92-6684B19F6686}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Order Monitor</RootNamespace>
+    <RootNamespace>Order_Monitor</RootNamespace>
     <AssemblyName>Order Monitor</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

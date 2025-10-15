@@ -17,6 +17,7 @@ namespace Order_Monitor.ListControl
         private FlowLayoutPanel flowPanel;
 
         private string loginName = string.Empty;
+        private int loginID = -1;
 
         public Kho()
         {
@@ -52,6 +53,7 @@ namespace Order_Monitor.ListControl
                 loginPanel.OnLoginSuccess += (userLogin) =>
                 {
                     loginName = userLogin.name;
+                    loginID = userLogin.ac_id;
                     LoadView();
                 };
                 mainContainer.Controls.Add(loginPanel);
@@ -115,6 +117,8 @@ namespace Order_Monitor.ListControl
             btnLogout.Click += (s, e) =>
             {
                 DataCache.Logout("Staff");
+                loginName = string.Empty;
+                loginID = -1;
                 LoadView();
             };
 
@@ -271,16 +275,14 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            DepotOrder depotOrderanel = new DepotOrder();
-            depotOrderanel.Dock = DockStyle.Fill;
-            depotOrderanel.BackButtonClicked += () =>
+            DepotOrder depotOrderPanel = new DepotOrder(loginID);
+            depotOrderPanel.Dock = DockStyle.Fill;
+            depotOrderPanel.BackButtonClicked += () =>
             {
-                this.Controls.Remove(depotOrderanel);
+                this.Controls.Remove(depotOrderPanel);
                 mainContainer.Visible = true;
             };
-            this.Controls.Add(depotOrderanel);
+            this.Controls.Add(depotOrderPanel);
         }
-        
-
     }
 }

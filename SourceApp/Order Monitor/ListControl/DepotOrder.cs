@@ -26,7 +26,9 @@ namespace Order_Monitor.ListControl
 
         public event Action BackButtonClicked;
 
-        public DepotOrder()
+        private int created_ByID;
+
+        public DepotOrder(int loginID)
         {
             InitializeComponent();
 
@@ -36,6 +38,8 @@ namespace Order_Monitor.ListControl
             mainContainer.BackColor = Color.FromArgb(60, 60, 60);
             mainContainer.Padding = new Padding(10);
             this.Controls.Add(mainContainer);
+
+            created_ByID = loginID;
 
             InitializePanel();
             LoadAvailableItems();
@@ -75,7 +79,9 @@ namespace Order_Monitor.ListControl
                 AutoScroll = true,
                 Padding = new Padding(20),
                 BackColor = Color.FromArgb(55, 55, 55),
-                WrapContents = true
+                WrapContents = true,
+                AutoScrollMargin = new Size(10, 10),
+                FlowDirection = FlowDirection.LeftToRight
             };
 
             Panel panelImport = new Panel
@@ -88,10 +94,14 @@ namespace Order_Monitor.ListControl
 
             loadFormImport(panelImport);
 
-            mainPanel.Controls.Add(panelImport);
-            mainPanel.Controls.Add(panelSelectedItems);
-            mainPanel.Controls.Add(buttonPanel);
-            mainPanel.Controls.Add(spacer);
+            mainPanel.Controls.AddRange(new Control[]
+            {
+                panelSelectedItems,
+                panelImport,
+                buttonPanel,
+                spacer
+            });
+            panelSelectedItems.BringToFront();
 
             mainContainer.Controls.Add(mainPanel);
         }
@@ -231,7 +241,6 @@ namespace Order_Monitor.ListControl
             });
         }
 
-
         private void LoadAvailableItems()
         {
             using (var db = new OrderMonitor())
@@ -260,12 +269,33 @@ namespace Order_Monitor.ListControl
                 return;
             }
 
+            ExportItem existingItem = null;
+
             if (!string.IsNullOrWhiteSpace(txtNewItemName.Text))
             {
                 // Item mới
                 itemName = txtNewItemName.Text.Trim();
-                unitId = (int) cmbUnits.SelectedValue + 1;
-                selectedItems.Add(new ExportItem { ItemName = itemName, UnitId = unitId, Quantity = qty, IsNew = true });
+                unitId = (int)cmbUnits.SelectedValue;
+
+                existingItem = selectedItems
+                    .FirstOrDefault(i => i.IsNew &&
+                                         i.ItemName.Equals(itemName, StringComparison.OrdinalIgnoreCase) &&
+                                         i.UnitId == unitId);
+
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += qty;
+                }
+                else
+                {
+                    selectedItems.Add(new ExportItem
+                    {
+                        ItemName = itemName,
+                        UnitId = unitId,
+                        Quantity = qty,
+                        IsNew = true
+                    });
+                }
             }
             else
             {
@@ -278,10 +308,31 @@ namespace Order_Monitor.ListControl
                 }
 
                 itemName = selected.name;
-                itemId = selected.item_id + 1;
+                itemId = selected.item_id;
                 unitId = selected.unit_id;
-                selectedItems.Add(new ExportItem { ItemId = itemId.Value, ItemName = itemName, UnitId = unitId, Quantity = qty, IsNew = false });
+
+                existingItem = selectedItems
+                    .FirstOrDefault(i => !i.IsNew && i.ItemId == itemId);
+
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += qty;
+                }
+                else
+                {
+                    selectedItems.Add(new ExportItem
+                    {
+                        ItemId = itemId,
+                        ItemName = itemName,
+                        UnitId = unitId,
+                        Quantity = qty,
+                        IsNew = false
+                    });
+                }
             }
+
+            txtNewItemName.Text = "";
+            txtQuantity.Text = "";
 
             RenderSelectedItems();
         }
@@ -303,7 +354,7 @@ namespace Order_Monitor.ListControl
 
                 Label lblName = new Label()
                 {
-                    Text = ex.ItemName + (ex.IsNew ? " *Mới" : ""),
+                    Text = ex.ItemName + (ex.IsNew ? " [New]" : ""),
                     ForeColor = Color.White,
                     Font = new Font("Tahoma", 12, FontStyle.Bold),
                     Dock = DockStyle.Top,
@@ -320,7 +371,7 @@ namespace Order_Monitor.ListControl
 
                 Label lblUnit = new Label()
                 {
-                    Text = "Đơn vị: " + GetUnitName(ex.UnitId),
+                    Text = "Đơn vị: " + DataCache.GetUnitName(ex.UnitId),
                     ForeColor = Color.LightGray,
                     Dock = DockStyle.Top,
                     Height = 20
@@ -351,20 +402,21 @@ namespace Order_Monitor.ListControl
             }
         }
 
-        private string GetUnitName(int unitId)
-        {
-            return cmbUnits.Items.Cast<unit>().FirstOrDefault(u => u.unit_id == unitId)?.abbreviation ?? "";
-        }
-
         private void BtnSave_Click(object sender, EventArgs e)
         {
+            if (selectedItems == null || selectedItems.Count == 0)
+            {
+                MessageBox.Show("Danh sách Nhập đang trống!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             using (var contextDB = new OrderMonitor())
             {
                 var import = new import
                 {
                     create_at = DateTime.Now,
                     import_status = 0,
-                    created_by = 1
+                    created_by = created_ByID
                 };
                 contextDB.import.Add(import);
                 contextDB.SaveChanges();

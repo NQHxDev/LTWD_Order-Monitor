@@ -16,6 +16,7 @@ namespace Order_Monitor.ListControl
         private FlowLayoutPanel flowPanel;
 
         private string loginName = string.Empty;
+        private int loginID = -1;
 
         public QuanLy()
         {
@@ -51,6 +52,7 @@ namespace Order_Monitor.ListControl
                 loginPanel.OnLoginSuccess += (userLogin) =>
                 {
                     loginName = userLogin.name;
+                    loginID = userLogin.ac_id;
                     LoadView();
                 };
                 // Xử lý Đăng nhập sai Role
@@ -125,6 +127,8 @@ namespace Order_Monitor.ListControl
             btnLogout.Click += (s, e) =>
             {
                 DataCache.Logout("Admin");
+                loginName = string.Empty;
+                loginID = -1;
                 LoadView();
             };
 
