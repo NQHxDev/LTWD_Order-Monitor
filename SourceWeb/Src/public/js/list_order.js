@@ -116,7 +116,7 @@ function renderOrders() {
    });
 }
 
-// Chuyển đổi trạng thái sang text
+// Chuyển đổi trạng thái
 function convertStatus(status) {
    switch (status) {
       case 0:
@@ -147,30 +147,3 @@ function formatDate(dateStr) {
 
 // Gọi render khi load trang
 renderOrders();
-
-// WebSocket nhận trạng thái mới
-const ws = new WebSocket('ws://localhost:8081');
-
-ws.onopen = () => console.log('[WS] Connected to server');
-ws.onclose = () => console.log('[WS] Disconnected');
-
-ws.onmessage = (event) => {
-   try {
-      const data = JSON.parse(event.data);
-      if (data.type === 'orderStatusUpdate') {
-         const { orderId, status, reason } = data.payload;
-         const order = orders.find(
-            (o) => o && (o.orderId === orderId || o.id === orderId)
-         );
-         if (order) {
-            order.status = status;
-            if (reason) order.reason = reason;
-            order.updated_at = new Date().toISOString();
-            localStorage.setItem('orders', JSON.stringify(orders));
-            renderOrders();
-         }
-      }
-   } catch (err) {
-      console.error('[WS] Parse error:', err);
-   }
-};
