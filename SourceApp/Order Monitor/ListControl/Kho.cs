@@ -247,7 +247,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            DepotExport depotExportPanel = new DepotExport();
+            DepotExport depotExportPanel = new DepotExport(loginID);
             depotExportPanel.Dock = DockStyle.Fill;
             depotExportPanel.BackButtonClicked += () =>
             {
