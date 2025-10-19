@@ -156,7 +156,7 @@ namespace Order_Monitor.ListControl
                 Text = $"Còn lại: 0",
                 ForeColor = Color.White,
                 Left = leftStart,
-                Top = topStart + 68,
+                Top = topStart + 66,
                 Width = 130,
                 Font = labelFont
             };
@@ -191,7 +191,7 @@ namespace Order_Monitor.ListControl
 
             txtNote = new TextBox()
             {
-                Width = 115,
+                Width = 250,
                 Left = leftStart,
                 Top = topStart + 150,
                 Font = textBoxFont
@@ -285,7 +285,6 @@ namespace Order_Monitor.ListControl
             }
         }
 
-
         private void cmbItems_SelectedIndexChanged(object sender, EventArgs e)
         {
             var wrapper = cmbItems.SelectedItem as DepotItem;
@@ -366,7 +365,7 @@ namespace Order_Monitor.ListControl
                 Panel card = new Panel()
                 {
                     Width = 250,
-                    Height = 120,
+                    Height = 150,
                     BackColor = Color.FromArgb(70, 70, 70),
                     Margin = new Padding(10),
                     Padding = new Padding(10)
@@ -376,17 +375,27 @@ namespace Order_Monitor.ListControl
                 {
                     Text = ex.ItemName,
                     ForeColor = Color.White,
-                    Font = new Font("Tahoma", 12, FontStyle.Bold),
+                    Font = new Font("Tahoma", 15, FontStyle.Bold),
                     Dock = DockStyle.Top,
-                    Height = 25
+                    Height = 35
                 };
 
                 Label lblQty = new Label()
                 {
                     Text = $"Số lượng: {ex.Quantity}",
                     ForeColor = Color.LightGray,
+                    Font = new Font("Tahoma", 9),
                     Dock = DockStyle.Top,
-                    Height = 20
+                    Height = 30
+                };
+
+                Label lblNote = new Label()
+                {
+                    Text = $"Note: {ex.Note}",
+                    Font = new Font("Tahoma", 8, FontStyle.Bold),
+                    ForeColor = Color.LightGray,
+                    Dock = DockStyle.Top,
+                    Height = 50
                 };
 
                 Button btnRemove = new Button()
@@ -406,6 +415,7 @@ namespace Order_Monitor.ListControl
                 };
 
                 card.Controls.Add(btnRemove);
+                card.Controls.Add(lblNote);
                 card.Controls.Add(lblQty);
                 card.Controls.Add(lblName);
 
