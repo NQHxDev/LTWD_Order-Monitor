@@ -48,8 +48,6 @@ namespace Base_BUS
                 var foods = _repo.GetAllFoods();
                 Foods = foods.ToDictionary(f => f.food_id);
 
-                Console.WriteLine("Count list Food: " + Foods.Count + " | Repo: " + foods.Count);
-
                 var ingredients = _repo.GetAllFoodIngredients();
                 FoodIngredients = ingredients
                     .GroupBy(fi => fi.food_id)

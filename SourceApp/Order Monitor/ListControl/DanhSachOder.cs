@@ -43,7 +43,7 @@ namespace Order_Monitor.ListControl
 
             InitializeOrderCard(mainContainer);
 
-            WebSocketManager.OnMessageReceived += HandleWebSocketMessage;
+            WebSocketManager.Instance.OnMessageReceived += HandleWebSocketMessage;
 
             LoadPendingOrders();
         }
@@ -239,7 +239,7 @@ namespace Order_Monitor.ListControl
             btnNhanDon.BackColor = Color.FromArgb(120, 120, 120);
 
             int orderId = (int)order["orderId"];
-            WebSocketManager.SendOrderStatus(orderId, "accepted");
+            WebSocketManager.Instance.SendOrderStatus(orderId, "accepted");
 
             var allIngredients = new List<food_ingredient>();
 
@@ -335,7 +335,7 @@ namespace Order_Monitor.ListControl
                 {
                     staffFeedback = txtReason.Text.Trim();
                     UpdateStatusOrder(orderId, -1);
-                    WebSocketManager.SendOrderStatus(orderId, "cancelled", txtReason.Text.Trim());
+                    WebSocketManager.Instance.SendOrderStatus(orderId, "cancelled", txtReason.Text.Trim());
                     flowPanel.Controls.Remove(orderPanel);
                 }
             }

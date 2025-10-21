@@ -1,23 +1,41 @@
 ﻿using System;
 using System.Threading;
-using WebSocketSharp;
 using Newtonsoft.Json;
+using WebSocketSharp;
 
-namespace Order_Monitor
+using WebSocketClient = WebSocketSharp.WebSocket;
+
+namespace Base_BUS
 {
     public class WebSocketManager
     {
-        private static WebSocket ws;
-        private static string currentUrl;
-        private static Timer reconnectTimer;
-        private static int reconnectAttempts = 0;
-        private const int MAX_RECONNECT_ATTEMPTS = 5;
+        private static WebSocketManager _instance;
+
+        public static WebSocketManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new WebSocketManager();
+                return _instance;
+            }
+        }
+
+        private WebSocketManager() { }
+
+        private WebSocketClient ws;
+        private string currentUrl;
+        private Timer reconnectTimer;
+        private int reconnectAttempts = 0;
+        private const int MAX_RECONNECT_ATTEMPTS = 10;
         private const int RECONNECT_INTERVAL_MS = 3000;
 
-        public static event Action<string> OnMessageReceived;
-        public static event Action<bool> OnConnectionStatusChanged;
+        public event Action<string> OnMessageReceived;
+        public event Action<bool> OnConnectionStatusChanged;
 
-        public static void Connect(string url = "ws://localhost:8081")
+        public bool IsConnected => ws?.IsAlive == true;
+
+        public void Connect(string url = "ws://localhost:8081")
         {
             if (ws != null && ws.IsAlive) return;
 
@@ -26,7 +44,7 @@ namespace Order_Monitor
             ws.Connect();
         }
 
-        public static void SendOrderStatus(int orderId, string status, string reason = "")
+        public void SendOrderStatus(int orderId, string status, string reason = "")
         {
             try
             {
@@ -46,11 +64,11 @@ namespace Order_Monitor
             }
             catch (Exception ex)
             {
-                Log($"SendOrderStatus error: {ex.Message}");
+                Console.WriteLine($"SendOrderStatus error: {ex.Message}");
             }
         }
 
-        private static void CreateWebSocket()
+        private void CreateWebSocket()
         {
             if (ws != null)
             {
@@ -61,14 +79,14 @@ namespace Order_Monitor
                 ws = null;
             }
 
-            ws = new WebSocket(currentUrl);
+            ws = new WebSocketClient(currentUrl);
             ws.OnOpen += Ws_OnOpen;
             ws.OnMessage += Ws_OnMessage;
             ws.OnError += Ws_OnError;
             ws.OnClose += Ws_OnClose;
         }
 
-        private static void Ws_OnOpen(object sender, EventArgs e)
+        private void Ws_OnOpen(object sender, EventArgs e)
         {
             Console.WriteLine("WebSocket Connected");
             reconnectAttempts = 0;
@@ -76,33 +94,32 @@ namespace Order_Monitor
             OnConnectionStatusChanged?.Invoke(true);
         }
 
-        private static void Ws_OnMessage(object sender, MessageEventArgs e)
+        private void Ws_OnMessage(object sender, MessageEventArgs e)
         {
             OnMessageReceived?.Invoke(e.Data);
         }
 
-        private static void Ws_OnError(object sender, ErrorEventArgs e)
+        private void Ws_OnError(object sender, ErrorEventArgs e)
         {
             Console.WriteLine("Error: " + e.Message);
         }
 
-        private static void Ws_OnClose(object sender, CloseEventArgs e)
+        private void Ws_OnClose(object sender, CloseEventArgs e)
         {
             Console.WriteLine($"Closed - Code: {e.Code}, Reason: {e.Reason}");
             OnConnectionStatusChanged?.Invoke(false);
 
-            // Nếu tự đóng sẽ trả 1000 và kết thúc
             if (e.Code != 1000)
             {
-                ScheduleReconnect();
+                Reconnect();
             }
         }
 
-        private static void ScheduleReconnect()
+        private void Reconnect()
         {
             if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS)
             {
-                Console.WriteLine("Max reconnect attempts reached. Giving up.");
+                Console.WriteLine("Không thể kết nối lại Hệ thông!");
                 return;
             }
 
@@ -120,18 +137,18 @@ namespace Order_Monitor
                 catch (Exception ex)
                 {
                     Console.WriteLine("Reconnect failed: " + ex.Message);
-                    ScheduleReconnect();
+                    Reconnect();
                 }
             }, null, RECONNECT_INTERVAL_MS, Timeout.Infinite);
         }
 
-        private static void StopReconnectTimer()
+        private void StopReconnectTimer()
         {
             reconnectTimer?.Dispose();
             reconnectTimer = null;
         }
 
-        public static void Send(string msg)
+        public void Send(string msg)
         {
             if (ws != null && ws.IsAlive)
             {
@@ -143,20 +160,11 @@ namespace Order_Monitor
             }
         }
 
-        public static void Close()
+        public void Close()
         {
             StopReconnectTimer();
-            // Ngăn không cho tự động kết nối lại
-            reconnectAttempts = MAX_RECONNECT_ATTEMPTS; 
+            reconnectAttempts = MAX_RECONNECT_ATTEMPTS;
             ws?.Close(1000, "Normal closure");
-        }
-
-        public static bool IsConnected => ws?.IsAlive == true;
-
-        private static void Log(string message)
-        {
-            string logPath = System.Windows.Forms.Application.StartupPath + "\\ws_log.txt";
-            System.IO.File.AppendAllText(logPath, DateTime.Now + " - " + message + Environment.NewLine);
         }
     }
 }
