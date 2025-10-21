@@ -261,7 +261,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            DepotImport depotImportPanel = new DepotImport();
+            DepotImport depotImportPanel = new DepotImport(loginID);
             depotImportPanel.Dock = DockStyle.Fill;
             depotImportPanel.BackButtonClicked += () =>
             {
