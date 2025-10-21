@@ -11,8 +11,6 @@ namespace Order_Monitor.ListControl
 {
     public partial class DepotOrder : UserControl
     {
-        private FoodServices foodServices = new FoodServices();
-
         private Panel mainContainer;
         private FlowLayoutPanel panelSelectedItems;
 
@@ -374,7 +372,7 @@ namespace Order_Monitor.ListControl
 
                 Label lblUnit = new Label()
                 {
-                    Text = "Đơn vị: " + foodServices.GetUnitName(ex.UnitId),
+                    Text = "Đơn vị: " + FoodServices.Instance.GetUnitName(ex.UnitId),
                     ForeColor = Color.LightGray,
                     Dock = DockStyle.Top,
                     Height = 20

@@ -11,23 +11,32 @@ namespace Base_BUS
 {
     public class FoodServices
     {
+        private static FoodServices _instance;
+
+        public static FoodServices Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new FoodServices();
+                return _instance;
+            }
+        }
+
         private readonly FoodRepository _repo;
-        private bool isLoaded = false;
 
         public Dictionary<int, food> Foods = new Dictionary<int, food>();
         public Dictionary<int, item> Items = new Dictionary<int, item>();
         public Dictionary<int, unit> Units = new Dictionary<int, unit>();
         public Dictionary<int, List<food_ingredient>> FoodIngredients = new Dictionary<int, List<food_ingredient>>();
 
-        public FoodServices()
+        private FoodServices()
         {
             _repo = new FoodRepository();
         }
 
         public void Initialize()
         {
-            if (isLoaded) return;
-
             try
             {
                 var units = _repo.GetAllUnits();
@@ -39,12 +48,12 @@ namespace Base_BUS
                 var foods = _repo.GetAllFoods();
                 Foods = foods.ToDictionary(f => f.food_id);
 
+                Console.WriteLine("Count list Food: " + Foods.Count + " | Repo: " + foods.Count);
+
                 var ingredients = _repo.GetAllFoodIngredients();
                 FoodIngredients = ingredients
                     .GroupBy(fi => fi.food_id)
                     .ToDictionary(g => g.Key, g => g.ToList());
-
-                isLoaded = true;
             }
             catch (Exception ex)
             {
@@ -93,11 +102,14 @@ namespace Base_BUS
             return result;
         }
 
-        public string GetFoodName(int id) => Foods.TryGetValue(id, out var f) ? f.name : $"Món ID: {id}";
+        public string GetFoodName(int foodID)
+        {
+            return Foods.ContainsKey(foodID) ? Foods[foodID].name : $"Món ID: {foodID}";
+        }
 
         public List<food_ingredient> GetIngredientsByFoodId(int foodId)
         {
-            return FoodIngredients.TryGetValue(foodId, out var list) ? list : new List<food_ingredient>();
+            return FoodIngredients.ContainsKey(foodId) ? FoodIngredients[foodId] : new List<food_ingredient>();
         }
 
         public string GetUnitName(int? unitId)

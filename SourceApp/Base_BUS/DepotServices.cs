@@ -9,6 +9,22 @@ namespace Base_BUS
 {
     public class DepotServices
     {
+        private static DepotServices _instance;
+
+        public static DepotServices Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new DepotServices();
+                return _instance;
+            }
+        }
+
+        private DepotServices()
+        {
+        }
+
         public List<depot> GetListItemDepot()
         {
             var listItem = new List<depot>();

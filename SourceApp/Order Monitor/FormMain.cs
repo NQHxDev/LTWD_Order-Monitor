@@ -7,8 +7,6 @@ namespace Order_Monitor
 {
     public partial class FormMain : Form
     {
-        private FoodServices foodServices = new FoodServices();
-
         private ListControl.DanhSachOder danhSachOrder;
         private ListControl.DangThucHien dangThucHien;
         private ListControl.Kho dsKho;
@@ -18,7 +16,7 @@ namespace Order_Monitor
         public FormMain()
         {
             InitializeComponent();
-            foodServices.Initialize();
+            FoodServices.Instance.Initialize();
 
             initControls();
 

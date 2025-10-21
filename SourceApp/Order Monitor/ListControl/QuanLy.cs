@@ -13,8 +13,6 @@ namespace Order_Monitor.ListControl
 {
     public partial class QuanLy : UserControl
     {
-        private LoginServices loginServices = new LoginServices();
-
         private Panel mainContainer;
         private FlowLayoutPanel flowPanel;
 
@@ -46,7 +44,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Controls.Clear();
 
-            if (!loginServices.IsLoggedIn)
+            if (!LoginServices.Instance.IsLogged_Leader)
             {
                 var loginPanel = new Login();
                 loginPanel.Dock = DockStyle.Fill;
@@ -65,7 +63,7 @@ namespace Order_Monitor.ListControl
                     {
                         if (userLogin != null)
                         {
-                            loginServices.Logout("Admin");
+                            LoginServices.Instance.Logout("Admin");
                             LoadView();
                         }
                     }
@@ -129,7 +127,7 @@ namespace Order_Monitor.ListControl
             btnLogout.Margin = new Padding(10, 10, 10, 10);
             btnLogout.Click += (s, e) =>
             {
-                loginServices.Logout("Admin");
+                LoginServices.Instance.Logout("Admin");
                 loginName = string.Empty;
                 loginID = -1;
                 LoadView();

@@ -15,8 +15,6 @@ namespace Order_Monitor.ListControl
 {
     public partial class DangThucHien : UserControl
     {
-        private FoodServices foodServices = new FoodServices();
-
         private FlowLayoutPanel flowPanel;
 
         public DangThucHien()
@@ -52,7 +50,7 @@ namespace Order_Monitor.ListControl
         {
             flowPanel.Controls.Clear();
 
-            var orders = foodServices.GetOrdersByStatus(1);
+            var orders = FoodServices.Instance.GetOrdersByStatus(1);
 
             foreach (var order in orders)
             {
@@ -60,7 +58,7 @@ namespace Order_Monitor.ListControl
                 foreach (var item in order["cart"])
                 {
                     int foodId = (int)item["id"];
-                    ingredients.AddRange(foodServices.GetIngredientsByFoodId(foodId));
+                    ingredients.AddRange(FoodServices.Instance.GetIngredientsByFoodId(foodId));
                 }
 
                 AddOrderCard(order, ingredients);
@@ -111,7 +109,7 @@ namespace Order_Monitor.ListControl
             foreach (var item in order["cart"])
             {
                 int foodId = (int)item["id"];
-                string foodName = foodServices.GetFoodName((int)item["id"]);
+                string foodName = FoodServices.Instance.GetFoodName((int)item["id"]);
                 int qty = (int)item["quantity"];
 
                 // Food

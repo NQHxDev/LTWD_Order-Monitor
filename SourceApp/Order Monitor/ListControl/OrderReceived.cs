@@ -15,8 +15,6 @@ namespace Order_Monitor.ListControl
 {
     public partial class OrderReceived : UserControl
     {
-        private FoodServices foodServices = new FoodServices();
-
         private FlowLayoutPanel flowPanel;
 
         public event Action BackButtonClicked;
@@ -84,7 +82,7 @@ namespace Order_Monitor.ListControl
         {
             try
             {
-                var completedOrders = foodServices.GetOrdersByStatus(1);
+                var completedOrders = FoodServices.Instance.GetOrdersByStatus(1);
 
                 foreach (var order in completedOrders)
                 {

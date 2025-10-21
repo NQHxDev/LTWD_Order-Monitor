@@ -14,8 +14,6 @@ namespace Order_Monitor.ListControl
 {
     public partial class Login : UserControl
     {
-        private LoginServices loginServices = new LoginServices();
-
         private TextBox txtUsername;
         private TextBox txtPassword;
         private Button btnLogin;
@@ -97,7 +95,7 @@ namespace Order_Monitor.ListControl
                 return;
             }
 
-            var userLogin = loginServices.Login(username, password);
+            var userLogin = LoginServices.Instance.Login(username, password);
 
             if (userLogin != null)
             {

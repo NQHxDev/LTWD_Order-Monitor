@@ -287,7 +287,6 @@ namespace Order_Monitor.ListControl
                     ? itemQuantities[itemId]
                     : 0;
                 lblQtyMax.Text = $"Còn lại: {currentQuantityItem} {wrapper.UnitName}";
-                Console.WriteLine($"Unit Name: {wrapper.UnitName}");
             }
             else
             {

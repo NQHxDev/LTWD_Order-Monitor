@@ -14,8 +14,6 @@ namespace Order_Monitor.ListControl
 {
     public partial class MenuFood : UserControl
     {
-        private FoodServices foodServices = new FoodServices();
-
         private List<food> foodList = new List<food>();
         private List<item> availableItems = new List<item>();
         private List<food_ingredient> currentIngredients = new List<food_ingredient>();
@@ -57,8 +55,8 @@ namespace Order_Monitor.ListControl
 
         private void InitializeData()
         {
-            foodServices.Initialize();
-            availableItems = foodServices.Items.Values.Where(i => i.is_active).ToList();
+            FoodServices.Instance.Initialize();
+            availableItems = FoodServices.Instance.Items.Values.Where(i => i.is_active).ToList();
         }
 
         private void InitializeControls()
@@ -369,7 +367,7 @@ namespace Order_Monitor.ListControl
         private void LoadFoodData()
         {
             dgvFood.Rows.Clear();
-            foodList = foodServices.Foods.Values.ToList();
+            foodList = FoodServices.Instance.Foods.Values.ToList();
 
             foreach (var food in foodList)
             {
@@ -383,7 +381,7 @@ namespace Order_Monitor.ListControl
             cmbItems.ValueMember = "item_id";
 
             // Load units
-            var units = foodServices.Units.Values.ToList();
+            var units = FoodServices.Instance.Units.Values.ToList();
             cmbUnits.DataSource = units;
             cmbUnits.DisplayMember = "name";
             cmbUnits.ValueMember = "unit_id";
@@ -437,7 +435,7 @@ namespace Order_Monitor.ListControl
             isEditing = true;
             editingFoodId = Convert.ToInt32(dgvFood.SelectedRows[0].Cells["food_id"].Value);
 
-            var food = foodServices.Foods[editingFoodId];
+            var food = FoodServices.Instance.Foods[editingFoodId];
             int statusValue = Convert.ToInt32(food.status);
 
             txtFoodName.Text = food.name;
@@ -445,7 +443,7 @@ namespace Order_Monitor.ListControl
             txtFoodDescription.Text = food.description;
             cmbFoodStatus.SelectedValue = statusValue;
 
-            currentIngredients = foodServices.GetIngredientsByFoodId(editingFoodId);
+            currentIngredients = FoodServices.Instance.GetIngredientsByFoodId(editingFoodId);
             RefreshIngredientsGrid();
 
             ShowFoodDetailSection();
@@ -621,7 +619,7 @@ namespace Order_Monitor.ListControl
                     dgvFood.Rows.Add(f.food_id, f.name, $"{f.price:N0} .000 VNĐ", f.description, statusText);
                 }
             }
-            foodServices.Initialize();
+            FoodServices.Instance.Initialize();
         }
 
 

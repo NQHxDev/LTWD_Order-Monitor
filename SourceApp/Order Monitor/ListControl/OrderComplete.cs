@@ -14,8 +14,6 @@ namespace Order_Monitor.ListControl
 {
     public partial class OrderComplete : UserControl
     {
-        private FoodServices foodServices = new FoodServices();
-
         private FlowLayoutPanel flowPanel;
 
         public event Action BackButtonClicked;
@@ -84,7 +82,7 @@ namespace Order_Monitor.ListControl
         {
             try
             {
-                var completedOrders = foodServices.GetOrdersByStatus(2);
+                var completedOrders = FoodServices.Instance.GetOrdersByStatus(2);
 
                 foreach (var order in completedOrders)
                 {
@@ -135,7 +133,7 @@ namespace Order_Monitor.ListControl
             foreach (var item in order["cart"])
             {
                 int foodId = item["id"] != null ? (int)item["id"] : (int)item["food_id"];
-                string foodName = item["name"]?.ToString() ?? item["food_name"]?.ToString() ?? foodServices.GetFoodName(foodId);
+                string foodName = item["name"]?.ToString() ?? item["food_name"]?.ToString() ?? FoodServices.Instance.GetFoodName(foodId);
                 int qty = (int)item["quantity"];
                 int price = (int)item["price"];
                 int total = price * qty;

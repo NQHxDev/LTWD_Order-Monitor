@@ -10,36 +10,55 @@ namespace Base_BUS
 {
     public class LoginServices
     {
-        private readonly AccountRepository accountRepo = new AccountRepository();
+        private static LoginServices _instance;
 
-        public account CurrentUser { get; private set; }
-        public account CurrentAdmin { get; private set; }
+        public static LoginServices Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new LoginServices();
+                return _instance;
+            }
+        }
 
-        public bool IsLoggedIn => CurrentUser != null || CurrentAdmin != null;
+        private readonly AccountRepository accountRepo;
+
+        public account Current_Staff { get; private set; }
+        public account Current_Leader { get; private set; }
+
+        public bool IsLogged_Staff => Current_Staff != null;
+
+        public bool IsLogged_Leader => Current_Leader != null;
+
+        private LoginServices()
+        {
+            accountRepo = new AccountRepository();
+        }
 
         public account Login(string username, string password)
         {
-            var user = accountRepo.GetAccountLogin(username, password);
-            if (user == null)
+            var userLogin = accountRepo.GetAccountLogin(username, password);
+            if (userLogin == null)
                 return null;
 
-            if (user.role == 1)
-                CurrentAdmin = user;
+            if (userLogin.role == 1)
+                Current_Leader = userLogin;
             else
-                CurrentUser = user;
+                Current_Staff = userLogin;
 
-            return user;
+            return userLogin;
         }
 
         public void Logout(string roleUser)
         {
             if (roleUser == "admin")
             {
-                CurrentAdmin = null;
+                Current_Leader = null;
             } 
             else
             {
-                CurrentUser = null;
+                Current_Staff = null;
             }
         }
     }

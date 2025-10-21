@@ -13,9 +13,6 @@ namespace Order_Monitor.ListControl
 {
     public partial class Kho : UserControl
     {
-        private LoginServices loginServices = new LoginServices();
-        private DepotServices depotServices = new DepotServices();
-
         private Panel mainContainer;
         private FlowLayoutPanel flowPanel;
 
@@ -47,7 +44,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Controls.Clear();
 
-            if (!loginServices.IsLoggedIn)
+            if (!LoginServices.Instance.IsLogged_Staff)
             {
                 var loginPanel = new Login();
                 loginPanel.Dock = DockStyle.Fill;
@@ -119,7 +116,7 @@ namespace Order_Monitor.ListControl
             btnLogout.Margin = new Padding(10, 10, 10, 10);
             btnLogout.Click += (s, e) =>
             {
-                loginServices.Logout("Staff");
+                LoginServices.Instance.Logout("Staff");
                 loginName = string.Empty;
                 loginID = -1;
                 LoadView();
@@ -158,7 +155,7 @@ namespace Order_Monitor.ListControl
         {
             flowPanel.Controls.Clear();
 
-            var listItemDepot = depotServices.GetListItemDepot();
+            var listItemDepot = DepotServices.Instance.GetListItemDepot();
 
             foreach (var dep in listItemDepot)
             {
