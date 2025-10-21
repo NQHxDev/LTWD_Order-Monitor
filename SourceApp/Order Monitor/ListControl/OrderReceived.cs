@@ -1,4 +1,5 @@
-﻿using Order_Monitor.ContextDatabase;
+﻿using Base_BUS;
+using Base_DAL.ContextDatabase;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -81,7 +82,7 @@ namespace Order_Monitor.ListControl
         {
             try
             {
-                var completedOrders = DataCache.GetOrdersByStatus(1);
+                var completedOrders = FoodServices.Instance.GetOrdersByStatus(1);
 
                 foreach (var order in completedOrders)
                 {

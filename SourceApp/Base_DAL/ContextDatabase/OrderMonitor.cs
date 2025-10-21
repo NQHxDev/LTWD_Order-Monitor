@@ -3,14 +3,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Linq;
 
-namespace Order_Monitor.ContextDatabase
+namespace Base_DAL.ContextDatabase
 {
     public partial class OrderMonitor : DbContext
     {
         public OrderMonitor()
-            : base("name=OderMonitor")
+            : base("name=OrderMonitor")
         {
         }
+
         public virtual DbSet<account> account { get; set; }
         public virtual DbSet<depot> depot { get; set; }
         public virtual DbSet<export> export { get; set; }
@@ -33,13 +34,13 @@ namespace Order_Monitor.ContextDatabase
 
             modelBuilder.Entity<account>()
                 .HasMany(e => e.import)
-                .WithOptional(e => e.created_by_account)
+                .WithOptional(e => e.account)
                 .HasForeignKey(e => e.created_by);
 
             modelBuilder.Entity<account>()
-                .HasMany(e => e.import)
-                .WithOptional(e => e.updated_by_account)
-                .HasForeignKey(e => e.created_by);
+                .HasMany(e => e.import1)
+                .WithOptional(e => e.account1)
+                .HasForeignKey(e => e.update_by);
 
             modelBuilder.Entity<account>()
                 .HasMany(e => e.import_detail)

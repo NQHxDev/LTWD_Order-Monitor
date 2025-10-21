@@ -1,4 +1,5 @@
-﻿using Order_Monitor.ContextDatabase;
+﻿using Base_BUS;
+using Base_DAL.ContextDatabase;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,14 +19,11 @@ namespace Order_Monitor.ListControl
         private Button btnLogin;
         private Label lblUser;
         private Label lblPass;
-
-        private OrderMonitor DB;
         public int RequiredRole { get; set; } = 0;
 
         public event Action<account> OnLoginSuccess;
-
         public event Action<account, bool> OnLoginAttempt;
-        
+
         public Login()
         {
             InitializeComponent();
@@ -37,7 +35,6 @@ namespace Order_Monitor.ListControl
             titleLabel.TextAlign = ContentAlignment.MiddleCenter;
             this.Controls.Add(titleLabel);
 
-            DB = new OrderMonitor();
             InitializePanel();
         }
 
@@ -98,51 +95,38 @@ namespace Order_Monitor.ListControl
                 return;
             }
 
-            try
+            var userLogin = LoginServices.Instance.Login(username, password);
+
+            if (userLogin != null)
             {
-                var userLogin = DB.account.FirstOrDefault(a => a.username == username && a.password == password);
-                if (userLogin != null)
+                bool isValidRole = CheckUserRole(userLogin);
+
+                if (isValidRole)
                 {
-                    bool isValidRole = CheckUserRole(userLogin);
-
-                    if (isValidRole)
-                    {
-                        string userRole = userLogin.role == 1 ? "Admin" : "Staff";
-                        DataCache.Login(userLogin, userRole);
-
-                        txtUsername.Text = "";
-                        txtPassword.Text = "";
-
-                        OnLoginSuccess?.Invoke(userLogin);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Bạn không có quyền truy cập!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                    OnLoginAttempt?.Invoke(userLogin, isValidRole);
+                    txtUsername.Text = "";
+                    txtPassword.Text = "";
+                    OnLoginSuccess?.Invoke(userLogin);
                 }
                 else
                 {
-                    MessageBox.Show("Tài khoản, Mật khẩu sai!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    MessageBox.Show("Bạn không có quyền truy cập!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
+
+                OnLoginAttempt?.Invoke(userLogin, isValidRole);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine("Lỗi hệ thống: " + ex.Message);
+                MessageBox.Show("Tài khoản hoặc mật khẩu sai!", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 OnLoginAttempt?.Invoke(null, false);
             }
         }
 
         private bool CheckUserRole(account userLogin)
         {
-            if (userLogin.role == 1)
-                return true;
-
-            if (RequiredRole == 0 && userLogin.role == 0)
-                return true;
-
+            if (userLogin.role == 1) return true;
+            if (RequiredRole == 0 && userLogin.role == 0) return true;
             return false;
         }
     }

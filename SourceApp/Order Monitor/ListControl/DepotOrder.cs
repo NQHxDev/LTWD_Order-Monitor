@@ -4,7 +4,8 @@ using System.Drawing;
 using System.Linq;
 using System.Data.Entity;
 using System.Windows.Forms;
-using Order_Monitor.ContextDatabase;
+using Base_DAL.ContextDatabase;
+using Base_BUS;
 
 namespace Order_Monitor.ListControl
 {
@@ -371,7 +372,7 @@ namespace Order_Monitor.ListControl
 
                 Label lblUnit = new Label()
                 {
-                    Text = "Đơn vị: " + DataCache.GetUnitName(ex.UnitId),
+                    Text = "Đơn vị: " + FoodServices.Instance.GetUnitName(ex.UnitId),
                     ForeColor = Color.LightGray,
                     Dock = DockStyle.Top,
                     Height = 20

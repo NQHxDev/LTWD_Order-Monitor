@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Base_BUS;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -81,7 +82,7 @@ namespace Order_Monitor.ListControl
         {
             try
             {
-                var completedOrders = DataCache.GetOrdersByStatus(2);
+                var completedOrders = FoodServices.Instance.GetOrdersByStatus(2);
 
                 foreach (var order in completedOrders)
                 {
@@ -132,7 +133,7 @@ namespace Order_Monitor.ListControl
             foreach (var item in order["cart"])
             {
                 int foodId = item["id"] != null ? (int)item["id"] : (int)item["food_id"];
-                string foodName = item["name"]?.ToString() ?? item["food_name"]?.ToString() ?? DataCache.GetFoodName(foodId);
+                string foodName = item["name"]?.ToString() ?? item["food_name"]?.ToString() ?? FoodServices.Instance.GetFoodName(foodId);
                 int qty = (int)item["quantity"];
                 int price = (int)item["price"];
                 int total = price * qty;

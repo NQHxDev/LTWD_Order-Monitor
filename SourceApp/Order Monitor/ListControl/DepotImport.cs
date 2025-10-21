@@ -17,7 +17,9 @@ namespace Order_Monitor.ListControl
 
         public event Action BackButtonClicked;
 
-        public DepotImport()
+        private int import_ByID;
+
+        public DepotImport(int loginID)
         {
             InitializeComponent();
 
@@ -27,6 +29,8 @@ namespace Order_Monitor.ListControl
             mainContainer.BackColor = Color.FromArgb(60, 60, 60);
             mainContainer.Padding = new Padding(10);
             this.Controls.Add(mainContainer);
+
+            import_ByID = loginID;
 
             InitializePanel();
         }

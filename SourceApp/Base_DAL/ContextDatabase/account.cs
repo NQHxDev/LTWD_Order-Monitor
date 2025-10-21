@@ -1,9 +1,10 @@
-namespace Order_Monitor.ContextDatabase
+namespace Base_DAL.ContextDatabase
 {
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
 
     [Table("account")]
     public partial class account
@@ -13,6 +14,8 @@ namespace Order_Monitor.ContextDatabase
         {
             export = new HashSet<export>();
             import = new HashSet<import>();
+            import1 = new HashSet<import>();
+            import_detail = new HashSet<import_detail>();
         }
 
         [Key]
@@ -30,6 +33,7 @@ namespace Order_Monitor.ContextDatabase
 
         public DateTime? created_at { get; set; }
 
+        [StringLength(100)]
         public string name { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -38,6 +42,10 @@ namespace Order_Monitor.ContextDatabase
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<import> import { get; set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<import> import1 { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<import_detail> import_detail { get; set; }
     }
 }

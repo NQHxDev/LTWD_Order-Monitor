@@ -1,4 +1,4 @@
-namespace Order_Monitor.ContextDatabase
+namespace Base_DAL.ContextDatabase
 {
     using System;
     using System.Collections.Generic;

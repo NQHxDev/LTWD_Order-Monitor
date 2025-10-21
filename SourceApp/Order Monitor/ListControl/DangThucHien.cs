@@ -1,5 +1,4 @@
-﻿using Order_Monitor.ContextDatabase;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +8,8 @@ using System.Drawing.Printing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
+using Base_BUS;
+using Base_DAL.ContextDatabase;
 
 namespace Order_Monitor.ListControl
 {
@@ -50,7 +50,7 @@ namespace Order_Monitor.ListControl
         {
             flowPanel.Controls.Clear();
 
-            var orders = DataCache.GetOrdersByStatus(1);
+            var orders = FoodServices.Instance.GetOrdersByStatus(1);
 
             foreach (var order in orders)
             {
@@ -58,7 +58,7 @@ namespace Order_Monitor.ListControl
                 foreach (var item in order["cart"])
                 {
                     int foodId = (int)item["id"];
-                    ingredients.AddRange(DataCache.GetIngredientsByFoodId(foodId));
+                    ingredients.AddRange(FoodServices.Instance.GetIngredientsByFoodId(foodId));
                 }
 
                 AddOrderCard(order, ingredients);
@@ -109,7 +109,7 @@ namespace Order_Monitor.ListControl
             foreach (var item in order["cart"])
             {
                 int foodId = (int)item["id"];
-                string foodName = DataCache.GetFoodName((int)item["id"]);
+                string foodName = FoodServices.Instance.GetFoodName((int)item["id"]);
                 int qty = (int)item["quantity"];
 
                 // Food
@@ -151,7 +151,7 @@ namespace Order_Monitor.ListControl
 
                     foreach (var ingr in foodIngredients)
                     {
-                        string unitName = DataCache.GetUnitName(ingr.item?.unit_id);
+                        string unitName = ingr.item?.unit.name;
                         string displayText = $"{ingr.quantity} {unitName}";
 
                         Label lblIngr = new Label();

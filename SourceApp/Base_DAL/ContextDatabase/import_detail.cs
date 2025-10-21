@@ -1,7 +1,10 @@
-namespace Order_Monitor.ContextDatabase
+namespace Base_DAL.ContextDatabase
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
 
     public partial class import_detail
     {
@@ -20,10 +23,10 @@ namespace Order_Monitor.ContextDatabase
 
         public int? import_by { get; set; }
 
+        public virtual account account { get; set; }
+
         public virtual import import { get; set; }
 
         public virtual item item { get; set; }
-
-        public virtual account account { get; set; }
     }
 }
