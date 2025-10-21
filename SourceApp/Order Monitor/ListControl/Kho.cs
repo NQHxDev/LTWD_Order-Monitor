@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Order_Monitor.ContextDatabase;
+using Base_BUS;
 
 namespace Order_Monitor.ListControl
 {
@@ -44,7 +44,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Controls.Clear();
 
-            if (!DataCache.IsLoggedIn)
+            if (!LoginServices.Instance.IsLogged_Staff)
             {
                 var loginPanel = new Login();
                 loginPanel.Dock = DockStyle.Fill;
@@ -116,7 +116,7 @@ namespace Order_Monitor.ListControl
             btnLogout.Margin = new Padding(10, 10, 10, 10);
             btnLogout.Click += (s, e) =>
             {
-                DataCache.Logout("Staff");
+                LoginServices.Instance.Logout("Staff");
                 loginName = string.Empty;
                 loginID = -1;
                 LoadView();
@@ -153,93 +153,80 @@ namespace Order_Monitor.ListControl
 
         private void LoadDepotItems()
         {
-            try
+            flowPanel.Controls.Clear();
+
+            var listItemDepot = DepotServices.Instance.GetListItemDepot();
+
+            foreach (var dep in listItemDepot)
             {
-                flowPanel.Controls.Clear();
+                var item = dep.item;
+                string donVi = item?.unit?.abbreviation ?? "N/A";
 
-                using (var db = new OrderMonitor())
+                string statusText;
+                Color statusColor;
+
+                if (item.is_active) 
                 {
-                    var list = db.depot
-                        .Include("item.unit")
-                        .OrderBy(d => d.item_id)
-                        .ToList();
-
-                    foreach (var dep in list)
-                    {
-                        var item = dep.item;
-                        string donVi = item?.unit?.abbreviation ?? "N/A";
-
-                        string statusText;
-                        Color statusColor;
-
-                        if (item.is_active) 
-                        {
-                            statusText = "Còn HSD";
-                            statusColor = Color.LightGreen;
-                        }
-                        else
-                        {
-                            statusText = "Hết HSD";
-                            statusColor = Color.OrangeRed;
-                        }
-
-                        Panel card = new Panel();
-                        card.Width = 260;
-                        card.Height = 180;
-                        card.BackColor = Color.FromArgb(45, 45, 45);
-                        card.BorderStyle = BorderStyle.FixedSingle;
-                        card.Margin = new Padding(10);
-                        card.Padding = new Padding(10);
-                        card.Cursor = Cursors.Hand;
-
-                        Label lblName = new Label();
-                        lblName.Text = $"[{item.item_id}] - {item.name}";
-                        lblName.Font = new Font("Tahoma", 11, FontStyle.Bold);
-                        lblName.ForeColor = Color.White;
-                        lblName.AutoSize = false;
-                        lblName.Height = 30;
-                        lblName.Dock = DockStyle.Top;
-
-                        Label lblDetail = new Label();
-                        lblDetail.Dock = DockStyle.Fill;
-                        lblDetail.ForeColor = Color.Gainsboro;
-                        lblDetail.Font = new Font("Tahoma", 10);
-                        lblDetail.Padding = new Padding(0, 5, 0, 5);
-                        lblDetail.Text =
-                            $"Số lượng: {dep.quantity} {donVi}\n\n" +
-                            $"Giá nhập gần nhất: {item.import_price:N0} VNĐ\n" +
-                            $"Ngày nhập gần nhất: {dep.last_updated?.ToString("dd/MM/yyyy") ?? ""}";
-
-                        Label lblStatus = new Label();
-                        lblStatus.Text = statusText;
-                        lblStatus.Font = new Font("Tahoma", 9, FontStyle.Bold);
-                        lblStatus.ForeColor = statusColor;
-                        lblStatus.Dock = DockStyle.Bottom;
-                        lblStatus.Height = 25;
-                        lblStatus.TextAlign = ContentAlignment.MiddleRight;
-
-                        card.Controls.Add(lblDetail);
-                        card.Controls.Add(lblStatus);
-                        card.Controls.Add(lblName);
-
-                        flowPanel.Controls.Add(card);
-                    }
+                    statusText = "Còn HSD";
+                    statusColor = Color.LightGreen;
+                }
+                else
+                {
+                    statusText = "Hết HSD";
+                    statusColor = Color.OrangeRed;
                 }
 
-                if (flowPanel.Controls.Count == 0)
-                {
-                    Label lblEmpty = new Label();
-                    lblEmpty.Text = "Không có nguyên liệu nào trong kho.";
-                    lblEmpty.Font = new Font("Tahoma", 12, FontStyle.Italic);
-                    lblEmpty.ForeColor = Color.Gray;
-                    lblEmpty.Dock = DockStyle.Fill;
-                    lblEmpty.TextAlign = ContentAlignment.MiddleCenter;
-                    flowPanel.Controls.Add(lblEmpty);
-                }
+                Panel card = new Panel();
+                card.Width = 260;
+                card.Height = 180;
+                card.BackColor = Color.FromArgb(45, 45, 45);
+                card.BorderStyle = BorderStyle.FixedSingle;
+                card.Margin = new Padding(10);
+                card.Padding = new Padding(10);
+                card.Cursor = Cursors.Hand;
+
+                Label lblName = new Label();
+                lblName.Text = $"[{item.item_id}] - {item.name}";
+                lblName.Font = new Font("Tahoma", 11, FontStyle.Bold);
+                lblName.ForeColor = Color.White;
+                lblName.AutoSize = false;
+                lblName.Height = 30;
+                lblName.Dock = DockStyle.Top;
+
+                Label lblDetail = new Label();
+                lblDetail.Dock = DockStyle.Fill;
+                lblDetail.ForeColor = Color.Gainsboro;
+                lblDetail.Font = new Font("Tahoma", 10);
+                lblDetail.Padding = new Padding(0, 5, 0, 5);
+                lblDetail.Text =
+                    $"Số lượng: {dep.quantity} {donVi}\n\n" +
+                    $"Giá nhập gần nhất: {item.import_price:N0} VNĐ\n" +
+                    $"Ngày nhập gần nhất: {dep.last_updated?.ToString("dd/MM/yyyy") ?? ""}";
+
+                Label lblStatus = new Label();
+                lblStatus.Text = statusText;
+                lblStatus.Font = new Font("Tahoma", 9, FontStyle.Bold);
+                lblStatus.ForeColor = statusColor;
+                lblStatus.Dock = DockStyle.Bottom;
+                lblStatus.Height = 25;
+                lblStatus.TextAlign = ContentAlignment.MiddleRight;
+
+                card.Controls.Add(lblDetail);
+                card.Controls.Add(lblStatus);
+                card.Controls.Add(lblName);
+
+                flowPanel.Controls.Add(card);
             }
-            catch (Exception ex)
+
+            if (flowPanel.Controls.Count == 0)
             {
-                MessageBox.Show("Lỗi tải danh sách kho: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Label lblEmpty = new Label();
+                lblEmpty.Text = "Không có nguyên liệu nào trong kho.";
+                lblEmpty.Font = new Font("Tahoma", 12, FontStyle.Italic);
+                lblEmpty.ForeColor = Color.Gray;
+                lblEmpty.Dock = DockStyle.Fill;
+                lblEmpty.TextAlign = ContentAlignment.MiddleCenter;
+                flowPanel.Controls.Add(lblEmpty);
             }
         }
 
@@ -261,7 +248,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            DepotImport depotImportPanel = new DepotImport();
+            DepotImport depotImportPanel = new DepotImport(loginID);
             depotImportPanel.Dock = DockStyle.Fill;
             depotImportPanel.BackButtonClicked += () =>
             {

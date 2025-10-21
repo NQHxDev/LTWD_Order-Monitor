@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Base_BUS;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -15,7 +16,7 @@ namespace Order_Monitor
         public FormMain()
         {
             InitializeComponent();
-            DataCache.Initialize();
+            FoodServices.Instance.Initialize();
 
             initControls();
 

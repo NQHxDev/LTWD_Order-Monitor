@@ -1,11 +1,11 @@
-﻿using Order_Monitor.ContextDatabase;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Data.Entity;
 using System.Windows.Forms;
+using Base_DAL.ContextDatabase;
 
 namespace Order_Monitor.ListControl
 {
@@ -30,12 +30,15 @@ namespace Order_Monitor.ListControl
         private int export_ByID;
         private decimal currentQuantityItem = 0;
 
+        private Dictionary<int, decimal> itemQuantities = new Dictionary<int, decimal>();
+
         private class DepotItem
         {
             public depot Depot { get; set; }
             public string DisplayName => Depot?.item?.name ?? "Item ID: -1";
             public int ItemId => Depot?.item_id ?? 0;
             public decimal Quantity => Depot?.quantity ?? 0;
+            public string UnitName => Depot?.item?.unit?.name ?? "";
         }
 
         public DepotExport(int loginID)
@@ -153,11 +156,11 @@ namespace Order_Monitor.ListControl
 
             lblQtyMax = new Label
             {
-                Text = $"Còn lại: 0",
+                Text = $"Còn lại: 0 Kilogram",
                 ForeColor = Color.White,
                 Left = leftStart,
-                Top = topStart + 68,
-                Width = 130,
+                Top = topStart + 66,
+                Width = 250,
                 Font = labelFont
             };
 
@@ -191,7 +194,7 @@ namespace Order_Monitor.ListControl
 
             txtNote = new TextBox()
             {
-                Width = 115,
+                Width = 250,
                 Left = leftStart,
                 Top = topStart + 150,
                 Font = textBoxFont
@@ -253,72 +256,55 @@ namespace Order_Monitor.ListControl
             using (var contextDB = new OrderMonitor())
             {
                 depotItems = contextDB.depot
-                    .Include(d => d.item)
-                    .Where(d => d.item.is_active)
+                    .Include(depot => depot.item.unit)
+                    .Where(depot => depot.item.is_active)
                     .ToList();
 
                 var wrappers = depotItems
-                    .Select(d => new DepotItem { Depot = d })
+                    .Select(depot => new DepotItem { Depot = depot })
                     .ToList();
 
                 cmbItems.DataSource = wrappers;
                 cmbItems.DisplayMember = "DisplayName";
                 cmbItems.ValueMember = "ItemId";
+
+                itemQuantities = depotItems.ToDictionary(depot => depot.item_id, depot => depot.quantity);
             }
 
             cmbItems.SelectedIndexChanged -= cmbItems_SelectedIndexChanged;
             cmbItems.SelectedIndexChanged += cmbItems_SelectedIndexChanged;
 
-            if (cmbItems.Items.Count > 0)
-            {
-                var firstItem = cmbItems.Items[0] as DepotItem;
-                if (firstItem != null && firstItem.Depot != null)
-                {
-                    currentQuantityItem = firstItem.Quantity;
-                    lblQtyMax.Text = $"Còn lại: {currentQuantityItem}";
-                }
-            }
-            else
-            {
-                currentQuantityItem = 0;
-                lblQtyMax.Text = "Còn lại: 0";
-            }
+            UpdateCurrentItemQuantity();
         }
 
-
-        private void cmbItems_SelectedIndexChanged(object sender, EventArgs e)
+        private void UpdateCurrentItemQuantity()
         {
             var wrapper = cmbItems.SelectedItem as DepotItem;
             if (wrapper != null && wrapper.Depot != null)
             {
-                currentQuantityItem = wrapper.Quantity;
-                lblQtyMax.Text = $"Còn lại: {currentQuantityItem}";
+                int itemId = wrapper.ItemId;
+                currentQuantityItem = itemQuantities.ContainsKey(itemId)
+                    ? itemQuantities[itemId]
+                    : 0;
+                lblQtyMax.Text = $"Còn lại: {currentQuantityItem} {wrapper.UnitName}";
             }
             else
             {
                 currentQuantityItem = 0;
-                lblQtyMax.Text = "Còn lại: 0";
+                lblQtyMax.Text = "Còn lại: 0 Kilogram";
             }
+        }
+
+        private void cmbItems_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateCurrentItemQuantity();
         }
 
         private void BtnAdd_Click(object sender, EventArgs e)
         {
-            string itemName;
-            int? itemId = null;
-            decimal qty;
-
-            if (!decimal.TryParse(txtQuantity.Text, out qty) || qty <= 0)
+            if (!decimal.TryParse(txtQuantity.Text, out decimal qty) || qty <= 0)
             {
                 MessageBox.Show("Số lượng không hợp lệ!");
-                return;
-            }
-
-            if (qty > currentQuantityItem)
-            {
-                MessageBox.Show($"Số lượng xuất vượt quá tồn kho! Hiện còn lại {currentQuantityItem}",
-                    "Cảnh báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
                 return;
             }
 
@@ -329,13 +315,19 @@ namespace Order_Monitor.ListControl
                 return;
             }
 
-            var selectedDepot = depotItem.Depot;
-            itemName = selectedDepot.item?.name ?? "Item ID: -1";
-            itemId = selectedDepot.item_id;
+            int itemId = depotItem.ItemId;
+            decimal available = itemQuantities.ContainsKey(itemId) ? itemQuantities[itemId] : 0;
 
-            ExportItem existingItem = selectedItems
-                .FirstOrDefault(i => i.ItemId == itemId);
+            if (qty > available)
+            {
+                MessageBox.Show($"Số lượng xuất vượt quá tồn kho! Hiện còn lại {available}", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
+            itemQuantities[itemId] = available - qty;
+
+            // Thêm vào List Item xuất
+            var existingItem = selectedItems.FirstOrDefault(i => i.ItemId == itemId);
             if (existingItem != null)
             {
                 existingItem.Quantity += qty;
@@ -345,9 +337,10 @@ namespace Order_Monitor.ListControl
                 selectedItems.Add(new ExportItem
                 {
                     ItemId = itemId,
-                    ItemName = itemName,
+                    ItemName = depotItem.DisplayName,
                     Quantity = qty,
-                    Note = txtNote.Text,
+                    Unit = depotItem.UnitName,
+                    Note = txtNote.Text
                 });
             }
 
@@ -355,18 +348,19 @@ namespace Order_Monitor.ListControl
             txtNote.Text = "";
 
             RenderSelectedItems();
+            UpdateCurrentItemQuantity();
         }
 
         private void RenderSelectedItems()
         {
             panelSelectedItems.Controls.Clear();
 
-            foreach (var ex in selectedItems)
+            foreach (var ex in selectedItems.ToList())
             {
                 Panel card = new Panel()
                 {
                     Width = 250,
-                    Height = 120,
+                    Height = 150,
                     BackColor = Color.FromArgb(70, 70, 70),
                     Margin = new Padding(10),
                     Padding = new Padding(10)
@@ -376,17 +370,27 @@ namespace Order_Monitor.ListControl
                 {
                     Text = ex.ItemName,
                     ForeColor = Color.White,
-                    Font = new Font("Tahoma", 12, FontStyle.Bold),
+                    Font = new Font("Tahoma", 15, FontStyle.Bold),
                     Dock = DockStyle.Top,
-                    Height = 25
+                    Height = 35
                 };
 
                 Label lblQty = new Label()
                 {
-                    Text = $"Số lượng: {ex.Quantity}",
+                    Text = $"Số lượng: {ex.Quantity} {ex.Unit}",
+                    ForeColor = Color.LightGray,
+                    Font = new Font("Tahoma", 9),
+                    Dock = DockStyle.Top,
+                    Height = 30
+                };
+
+                Label lblNote = new Label()
+                {
+                    Text = $"Note: {ex.Note}",
+                    Font = new Font("Tahoma", 8, FontStyle.Bold),
                     ForeColor = Color.LightGray,
                     Dock = DockStyle.Top,
-                    Height = 20
+                    Height = 50
                 };
 
                 Button btnRemove = new Button()
@@ -399,13 +403,22 @@ namespace Order_Monitor.ListControl
                     FlatStyle = FlatStyle.Flat,
                     Dock = DockStyle.Bottom
                 };
+
                 btnRemove.Click += (s, e) =>
                 {
+                    if (ex.ItemId.HasValue && itemQuantities.ContainsKey(ex.ItemId.Value))
+                    {
+                        itemQuantities[ex.ItemId.Value] += ex.Quantity;
+                    }
+
                     selectedItems.Remove(ex);
+
                     RenderSelectedItems();
+                    UpdateCurrentItemQuantity();
                 };
 
                 card.Controls.Add(btnRemove);
+                card.Controls.Add(lblNote);
                 card.Controls.Add(lblQty);
                 card.Controls.Add(lblName);
 
@@ -417,7 +430,7 @@ namespace Order_Monitor.ListControl
         {
             if (selectedItems == null || selectedItems.Count == 0)
             {
-                MessageBox.Show("Danh sách Nhập đang trống!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Danh sách Xuất đang trống!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -434,9 +447,7 @@ namespace Order_Monitor.ListControl
 
                 foreach (var item in selectedItems)
                 {
-                    int itemId;
-
-                    itemId = item.ItemId ?? 0;
+                    int itemId = item.ItemId ?? 0;
 
                     var detail = new export_detail
                     {
@@ -446,10 +457,17 @@ namespace Order_Monitor.ListControl
                         note = item.Note
                     };
                     contextDB.export_detail.Add(detail);
+
+                    var depot = contextDB.depot.FirstOrDefault(d => d.item_id == itemId);
+                    if (depot != null)
+                    {
+                        depot.quantity = itemQuantities[itemId];
+                    }
                 }
 
                 contextDB.SaveChanges();
                 ClearAll();
+                MessageBox.Show("Đã lưu phiếu Xuất kho thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -457,9 +475,9 @@ namespace Order_Monitor.ListControl
         {
             selectedItems.Clear();
             panelSelectedItems.Controls.Clear();
-
             txtQuantity.Text = "";
             txtNote.Text = "";
+            LoadDepotItems();
         }
     }
 
@@ -468,6 +486,7 @@ namespace Order_Monitor.ListControl
         public int? ItemId { get; set; }
         public string ItemName { get; set; }
         public decimal Quantity { get; set; }
+        public string Unit { get; set; }
         public string Note { get; set; }
     }
 }

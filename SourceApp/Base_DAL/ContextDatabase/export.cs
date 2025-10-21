@@ -1,9 +1,10 @@
-namespace Order_Monitor.ContextDatabase
+namespace Base_DAL.ContextDatabase
 {
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
 
     [Table("export")]
     public partial class export

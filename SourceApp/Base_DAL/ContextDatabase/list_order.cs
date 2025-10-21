@@ -1,4 +1,4 @@
-namespace Order_Monitor.ContextDatabase
+namespace Base_DAL.ContextDatabase
 {
     using System;
     using System.Collections.Generic;
@@ -6,42 +6,36 @@ namespace Order_Monitor.ContextDatabase
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    [Table("food")]
-    public partial class food
+    public partial class list_order
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public food()
+        public list_order()
         {
-            food_ingredient = new HashSet<food_ingredient>();
             order_detail = new HashSet<order_detail>();
         }
 
         [Key]
-        public int food_id { get; set; }
+        public int oder_id { get; set; }
 
-        [Required]
         [StringLength(100)]
-        public string name { get; set; }
+        public string customer_name { get; set; }
 
-        public string description { get; set; }
+        public string note { get; set; }
 
-        public int price { get; set; }
+        public decimal total_price { get; set; }
 
         public short status { get; set; }
 
         public DateTime? created_at { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<food_ingredient> food_ingredient { get; set; }
+        public DateTime? updated_at { get; set; }
+
+        [StringLength(10)]
+        public string customer_phone { get; set; }
+
+        public string staff_feedback { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<order_detail> order_detail { get; set; }
     }
-
-    public class StatusItem
-    {
-        public string Text { get; set; }
-        public int Value { get; set; }
-    }
-
 }

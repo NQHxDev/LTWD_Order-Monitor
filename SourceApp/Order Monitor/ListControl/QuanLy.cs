@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Base_BUS;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -43,7 +44,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Controls.Clear();
 
-            if (!DataCache.IsLoggedInAdmin)
+            if (!LoginServices.Instance.IsLogged_Leader)
             {
                 var loginPanel = new Login();
                 loginPanel.Dock = DockStyle.Fill;
@@ -62,7 +63,7 @@ namespace Order_Monitor.ListControl
                     {
                         if (userLogin != null)
                         {
-                            DataCache.Logout("Admin");
+                            LoginServices.Instance.Logout("Admin");
                             LoadView();
                         }
                     }
@@ -126,7 +127,7 @@ namespace Order_Monitor.ListControl
             btnLogout.Margin = new Padding(10, 10, 10, 10);
             btnLogout.Click += (s, e) =>
             {
-                DataCache.Logout("Admin");
+                LoginServices.Instance.Logout("Admin");
                 loginName = string.Empty;
                 loginID = -1;
                 LoadView();
