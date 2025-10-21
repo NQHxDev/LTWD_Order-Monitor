@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Base_BUS;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,6 +13,8 @@ namespace Order_Monitor.ListControl
 {
     public partial class QuanLy : UserControl
     {
+        private LoginServices loginServices = new LoginServices();
+
         private Panel mainContainer;
         private FlowLayoutPanel flowPanel;
 
@@ -43,7 +46,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Controls.Clear();
 
-            if (!DataCache.IsLoggedInAdmin)
+            if (!loginServices.IsLoggedIn)
             {
                 var loginPanel = new Login();
                 loginPanel.Dock = DockStyle.Fill;
@@ -62,7 +65,7 @@ namespace Order_Monitor.ListControl
                     {
                         if (userLogin != null)
                         {
-                            DataCache.Logout("Admin");
+                            loginServices.Logout("Admin");
                             LoadView();
                         }
                     }
@@ -126,7 +129,7 @@ namespace Order_Monitor.ListControl
             btnLogout.Margin = new Padding(10, 10, 10, 10);
             btnLogout.Click += (s, e) =>
             {
-                DataCache.Logout("Admin");
+                loginServices.Logout("Admin");
                 loginName = string.Empty;
                 loginID = -1;
                 LoadView();

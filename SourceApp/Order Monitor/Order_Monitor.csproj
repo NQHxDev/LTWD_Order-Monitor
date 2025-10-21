@@ -119,20 +119,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContextDatabase\account.cs" />
-    <Compile Include="ContextDatabase\depot.cs" />
-    <Compile Include="ContextDatabase\export.cs" />
-    <Compile Include="ContextDatabase\export_detail.cs" />
-    <Compile Include="ContextDatabase\food.cs" />
-    <Compile Include="ContextDatabase\food_ingredient.cs" />
-    <Compile Include="ContextDatabase\import.cs" />
-    <Compile Include="ContextDatabase\import_detail.cs" />
-    <Compile Include="ContextDatabase\item.cs" />
-    <Compile Include="ContextDatabase\list_order.cs" />
-    <Compile Include="ContextDatabase\OrderMonitor.cs" />
-    <Compile Include="ContextDatabase\order_detail.cs" />
-    <Compile Include="ContextDatabase\unit.cs" />
-    <Compile Include="DataCache.cs" />
     <Compile Include="ListControl\DanhSachOder.cs">
       <SubType>UserControl</SubType>
     </Compile>

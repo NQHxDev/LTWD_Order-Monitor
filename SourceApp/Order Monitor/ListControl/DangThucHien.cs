@@ -1,5 +1,4 @@
-﻿using Order_Monitor.ContextDatabase;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,12 +8,15 @@ using System.Drawing.Printing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
+using Base_BUS;
+using Base_DAL.ContextDatabase;
 
 namespace Order_Monitor.ListControl
 {
     public partial class DangThucHien : UserControl
     {
+        private FoodServices foodServices = new FoodServices();
+
         private FlowLayoutPanel flowPanel;
 
         public DangThucHien()
@@ -50,7 +52,7 @@ namespace Order_Monitor.ListControl
         {
             flowPanel.Controls.Clear();
 
-            var orders = DataCache.GetOrdersByStatus(1);
+            var orders = foodServices.GetOrdersByStatus(1);
 
             foreach (var order in orders)
             {
@@ -58,7 +60,7 @@ namespace Order_Monitor.ListControl
                 foreach (var item in order["cart"])
                 {
                     int foodId = (int)item["id"];
-                    ingredients.AddRange(DataCache.GetIngredientsByFoodId(foodId));
+                    ingredients.AddRange(foodServices.GetIngredientsByFoodId(foodId));
                 }
 
                 AddOrderCard(order, ingredients);
@@ -109,7 +111,7 @@ namespace Order_Monitor.ListControl
             foreach (var item in order["cart"])
             {
                 int foodId = (int)item["id"];
-                string foodName = DataCache.GetFoodName((int)item["id"]);
+                string foodName = foodServices.GetFoodName((int)item["id"]);
                 int qty = (int)item["quantity"];
 
                 // Food
@@ -151,7 +153,7 @@ namespace Order_Monitor.ListControl
 
                     foreach (var ingr in foodIngredients)
                     {
-                        string unitName = DataCache.GetUnitName(ingr.item?.unit_id);
+                        string unitName = ingr.item?.unit.name;
                         string displayText = $"{ingr.quantity} {unitName}";
 
                         Label lblIngr = new Label();

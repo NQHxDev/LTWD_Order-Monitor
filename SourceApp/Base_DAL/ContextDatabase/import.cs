@@ -1,10 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Order_Monitor.ContextDatabase
+namespace Base_DAL.ContextDatabase
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Data.Entity.Spatial;
+
     [Table("import")]
     public partial class import
     {
@@ -23,15 +24,13 @@ namespace Order_Monitor.ContextDatabase
 
         public int? created_by { get; set; }
 
-        public int? update_by { get; set; }
-
         public int import_status { get; set; }
 
-        [ForeignKey("created_by")]
-        public virtual account created_by_account { get; set; }
+        public int? update_by { get; set; }
 
-        [ForeignKey("update_by")]
-        public virtual account updated_by_account { get; set; }
+        public virtual account account { get; set; }
+
+        public virtual account account1 { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<import_detail> import_detail { get; set; }

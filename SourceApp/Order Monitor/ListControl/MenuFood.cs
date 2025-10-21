@@ -7,12 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Order_Monitor.ContextDatabase;
+using Base_DAL.ContextDatabase;
+using Base_BUS;
 
 namespace Order_Monitor.ListControl
 {
     public partial class MenuFood : UserControl
     {
+        private FoodServices foodServices = new FoodServices();
+
         private List<food> foodList = new List<food>();
         private List<item> availableItems = new List<item>();
         private List<food_ingredient> currentIngredients = new List<food_ingredient>();
@@ -54,8 +57,8 @@ namespace Order_Monitor.ListControl
 
         private void InitializeData()
         {
-            DataCache.Initialize();
-            availableItems = DataCache.Items.Values.Where(i => i.is_active).ToList();
+            foodServices.Initialize();
+            availableItems = foodServices.Items.Values.Where(i => i.is_active).ToList();
         }
 
         private void InitializeControls()
@@ -366,7 +369,7 @@ namespace Order_Monitor.ListControl
         private void LoadFoodData()
         {
             dgvFood.Rows.Clear();
-            foodList = DataCache.Foods.Values.ToList();
+            foodList = foodServices.Foods.Values.ToList();
 
             foreach (var food in foodList)
             {
@@ -380,7 +383,7 @@ namespace Order_Monitor.ListControl
             cmbItems.ValueMember = "item_id";
 
             // Load units
-            var units = DataCache.Units.Values.ToList();
+            var units = foodServices.Units.Values.ToList();
             cmbUnits.DataSource = units;
             cmbUnits.DisplayMember = "name";
             cmbUnits.ValueMember = "unit_id";
@@ -434,7 +437,7 @@ namespace Order_Monitor.ListControl
             isEditing = true;
             editingFoodId = Convert.ToInt32(dgvFood.SelectedRows[0].Cells["food_id"].Value);
 
-            var food = DataCache.Foods[editingFoodId];
+            var food = foodServices.Foods[editingFoodId];
             int statusValue = Convert.ToInt32(food.status);
 
             txtFoodName.Text = food.name;
@@ -442,7 +445,7 @@ namespace Order_Monitor.ListControl
             txtFoodDescription.Text = food.description;
             cmbFoodStatus.SelectedValue = statusValue;
 
-            currentIngredients = DataCache.GetIngredientsByFoodId(editingFoodId);
+            currentIngredients = foodServices.GetIngredientsByFoodId(editingFoodId);
             RefreshIngredientsGrid();
 
             ShowFoodDetailSection();
@@ -517,7 +520,7 @@ namespace Order_Monitor.ListControl
             dgvIngredients.Rows.Clear();
             foreach (var ingredient in currentIngredients)
             {
-                string unitName = ingredient.item?.unit?.name ?? DataCache.GetUnitName(ingredient.item?.unit_id);
+                string unitName = ingredient.item?.unit?.name ?? ingredient.item.unit.name;
                 dgvIngredients.Rows.Add(ingredient.item.name, ingredient.quantity, unitName);
             }
         }
@@ -618,7 +621,7 @@ namespace Order_Monitor.ListControl
                     dgvFood.Rows.Add(f.food_id, f.name, $"{f.price:N0} .000 VNĐ", f.description, statusText);
                 }
             }
-            DataCache.Initialize();
+            foodServices.Initialize();
         }
 
 

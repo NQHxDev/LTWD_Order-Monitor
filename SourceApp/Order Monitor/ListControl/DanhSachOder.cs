@@ -1,5 +1,4 @@
-﻿using Order_Monitor.ContextDatabase;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,12 +10,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
-using Org.BouncyCastle.Asn1.X509;
+using Base_DAL.ContextDatabase;
+using Base_BUS;
 
 namespace Order_Monitor.ListControl
 {
     public partial class DanhSachOder : UserControl
     {
+        private FoodServices foodServices = new FoodServices();
+
         private Panel mainContainer;
         private FlowLayoutPanel flowPanel;
 
@@ -143,7 +145,7 @@ namespace Order_Monitor.ListControl
 
             foreach (var item in order["cart"])
             {
-                string foodName = DataCache.GetFoodName((int)item["id"]);
+                string foodName = foodServices.GetFoodName((int)item["id"]);
                 int qty = (int)item["quantity"];
                 int price = (int)item["price"];
                 //int total = price * qty;
@@ -245,7 +247,7 @@ namespace Order_Monitor.ListControl
             foreach (var item in order["cart"])
             {
                 int foodId = (int)item["id"];
-                var ingredients = DataCache.GetIngredientsByFoodId(foodId);
+                var ingredients = foodServices.GetIngredientsByFoodId(foodId);
                 allIngredients.AddRange(ingredients);
             }
 
@@ -405,7 +407,7 @@ namespace Order_Monitor.ListControl
         {
             try
             {
-                var pendingOrders = DataCache.GetOrdersByStatus(0);
+                var pendingOrders = foodServices.GetOrdersByStatus(0);
 
                 foreach (var orderJson in pendingOrders)
                 {

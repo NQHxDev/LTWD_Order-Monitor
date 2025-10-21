@@ -1,4 +1,5 @@
-﻿using Order_Monitor.ContextDatabase;
+﻿using Base_BUS;
+using Base_DAL.ContextDatabase;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,8 @@ namespace Order_Monitor.ListControl
 {
     public partial class OrderReceived : UserControl
     {
+        private FoodServices foodServices = new FoodServices();
+
         private FlowLayoutPanel flowPanel;
 
         public event Action BackButtonClicked;
@@ -81,7 +84,7 @@ namespace Order_Monitor.ListControl
         {
             try
             {
-                var completedOrders = DataCache.GetOrdersByStatus(1);
+                var completedOrders = foodServices.GetOrdersByStatus(1);
 
                 foreach (var order in completedOrders)
                 {

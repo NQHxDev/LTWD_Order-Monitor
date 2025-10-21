@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Base_BUS;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -6,6 +7,8 @@ namespace Order_Monitor
 {
     public partial class FormMain : Form
     {
+        private FoodServices foodServices = new FoodServices();
+
         private ListControl.DanhSachOder danhSachOrder;
         private ListControl.DangThucHien dangThucHien;
         private ListControl.Kho dsKho;
@@ -15,7 +18,7 @@ namespace Order_Monitor
         public FormMain()
         {
             InitializeComponent();
-            DataCache.Initialize();
+            foodServices.Initialize();
 
             initControls();
 
