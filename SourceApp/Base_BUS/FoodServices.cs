@@ -45,7 +45,7 @@ namespace Base_BUS
                 var items = _repo.GetAllItems();
                 Items = items.ToDictionary(i => i.item_id);
 
-                var foods = _repo.GetAllFoods();
+                var foods = _repo.GetListFoods();
                 Foods = foods.ToDictionary(f => f.food_id);
 
                 var ingredients = _repo.GetAllFoodIngredients();

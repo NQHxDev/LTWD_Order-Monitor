@@ -107,6 +107,7 @@
             this.Controls.Add(this.btnMenuFood);
             this.Controls.Add(this.btnDangThucHien);
             this.Controls.Add(this.btnDanhSach);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "FormMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

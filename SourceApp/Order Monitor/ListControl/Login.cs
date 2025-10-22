@@ -125,9 +125,11 @@ namespace Order_Monitor.ListControl
 
         private bool CheckUserRole(account userLogin)
         {
-            if (userLogin.role == 1) return true;
-            if (RequiredRole == 0 && userLogin.role == 0) return true;
-            return false;
+            if (RequiredRole == -1)
+                return true;
+
+            return userLogin.role == RequiredRole;
         }
+
     }
 }
