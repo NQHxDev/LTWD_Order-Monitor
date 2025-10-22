@@ -6,25 +6,29 @@ dotenv.config();
 let clients = new Set();
 
 export const initWebSocket = () => {
-   // Port Websocket 8081
    wss = new WebSocketServer({ port: process.env.PORT_WS });
 
    wss.on('connection', (ws, req) => {
       clients.add(ws);
       console.log('{/} NQH Dev: Client Connected');
 
-      // Khi nhận được message từ client
       ws.on('message', (message) => {
          try {
             const data = JSON.parse(message.toString());
 
+            // Khi application gửi cập nhật trạng thái đơn
             if (data.type === 'updateOrderStatus') {
                const { orderId, status, reason } = data.payload;
 
-               // Gửi cho các client khác
+               // Gửi lại cho các client khác
                const broadcastData = JSON.stringify({
                   type: 'orderStatusUpdate',
-                  payload: { orderId, status, reason },
+                  payload: {
+                     orderId,
+                     status,
+                     reason,
+                     time: new Date().toISOString(),
+                  },
                });
 
                for (let client of clients) {
@@ -32,20 +36,31 @@ export const initWebSocket = () => {
                      client.send(broadcastData);
                   }
                }
-            } else {
-               ws.send('Echo: ' + message.toString());
+
+               console.log(`>> Broadcast order #${orderId} → ${status}`);
+            } else if (data.type === 'orderFood') {
+               const broadcastData = JSON.stringify({
+                  type: 'orderFood',
+                  payload: data.payload,
+               });
+               for (let client of clients) {
+                  if (client.readyState === 1 && client !== ws) {
+                     client.send(broadcastData);
+                  }
+               }
             }
          } catch (err) {
-            console.error('Failed to parse message:', err.message);
+            console.error('❌ Failed to parse message:', err.message);
          }
       });
 
-      // Khi client ngắt kết nối
       ws.on('close', () => {
          clients.delete(ws);
          console.log('{/} NQH Dev: Client Disconnected');
       });
    });
+
+   console.log(`🌐 WebSocket listening on port ${process.env.PORT_WS}`);
 };
 
 export const broadcastOrder = (orderData) => {

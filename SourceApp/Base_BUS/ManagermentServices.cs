@@ -33,7 +33,10 @@ namespace Base_BUS
         public SalesSummary GetSalesFoods(DateTime start, DateTime end)
         {
             var orders = _repo.GetListOrder()
-                .Where(o => o.created_at.HasValue && o.created_at.Value >= start && o.created_at.Value <= end)
+                .Where(o => o.created_at.HasValue &&
+                            o.created_at.Value >= start &&
+                            o.created_at.Value <= end &&
+                            o.status == 2)
                 .ToList();
 
             var total = orders.Sum(o => (decimal?)o.total_price) ?? 0m;
@@ -74,7 +77,10 @@ namespace Base_BUS
         public List<(DateTime Date, decimal Total)> GetDailySales(DateTime from, DateTime to)
         {
             var orders = _repo.GetListOrder()
-                .Where(o => o.created_at.HasValue && o.created_at.Value >= from && o.created_at.Value <= to)
+                .Where(o => o.created_at.HasValue &&
+                            o.created_at.Value >= from &&
+                            o.created_at.Value <= to &&
+                            o.status == 2)
                 .ToList();
 
             var dailySales = orders
@@ -84,13 +90,16 @@ namespace Base_BUS
                 .OrderBy(x => x.Date)
                 .ToList();
 
-            return dailySales.Select(x => (Date: x.Date, Total: x.Total)).ToList();
+            return dailySales.Select(x => (x.Date, x.Total)).ToList();
         }
 
         public List<BestSellerItem> GetBestSellers(int top = 8, DateTime? from = null, DateTime? to = null)
         {
             var orderDetails = _repo.GetListOrderDetail();
-            var orders = _repo.GetListOrder();
+            var orders = _repo.GetListOrder()
+                              .Where(o => o.status >= 1)
+                              .ToList();
+
             var foods = _foodRepo.GetListFoods();
 
             if (from.HasValue && to.HasValue)
@@ -103,6 +112,11 @@ namespace Base_BUS
                 orderDetails = orderDetails
                     .Where(d => filteredOrderIds.Contains(d.order_id))
                     .ToList();
+            }
+            else
+            {
+                var validOrderIds = orders.Select(o => o.oder_id).ToList();
+                orderDetails = orderDetails.Where(d => validOrderIds.Contains(d.order_id)).ToList();
             }
 
             var bestSellers = orderDetails

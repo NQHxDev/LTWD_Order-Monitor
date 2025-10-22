@@ -202,6 +202,7 @@ namespace Order_Monitor.ListControl
                     }
 
                     WebSocketManager.Instance.SendOrderStatus(orderId, "completed");
+
                     flowPanel.Controls.Remove(orderPanel);
                 }
                 catch (Exception ex)

@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Order_Monitor.ListControl.Manager;
 using System.Windows.Forms.DataVisualization.Charting;
+using Newtonsoft.Json.Linq;
+using WebSocketSharp;
+using System.Globalization;
 
 namespace Order_Monitor.ListControl
 {
@@ -32,6 +35,9 @@ namespace Order_Monitor.ListControl
         public QuanLy()
         {
             InitializeComponent();
+
+            WebSocketManager.Instance.OnMessageReceived += HandleWebSocketMessage;
+
             Label titleLabel = new Label();
             titleLabel.Font = new Font("Tahoma", 16, FontStyle.Bold);
             titleLabel.ForeColor = Color.White;
@@ -219,7 +225,7 @@ namespace Order_Monitor.ListControl
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 Dock = DockStyle.Right
             };
-            cbRange.Items.AddRange(new[] { "Month", "Year", "Week", "Day" });
+            cbRange.Items.AddRange(new[] { "Year", "Month", "Week", "Day" });
             cbRange.SelectedIndex = 0;
             cbRange.SelectedIndexChanged += (s, e) => LoadChartFor(cbRange.SelectedItem.ToString());
 
@@ -282,8 +288,41 @@ namespace Order_Monitor.ListControl
             AdjustChildWidths();
         }
 
+        private void HandleWebSocketMessage(string message)
+        {
+            Console.WriteLine("Receive Order to Managerment: " + message);
+
+            try
+            {
+                var data = JObject.Parse(message);
+                if ((string)data["type"] == "orderFood")
+                {
+                    int orderId = (int)data["payload"]["orderId"];
+                    string status = (string)data["payload"]["status"].ToString();
+                    string reason = (string)data["payload"]["note"];
+
+                    string dateString = (string)data["payload"]["created_at"];
+                    Console.WriteLine($"Raw date string: '{dateString}'");
+
+                    DateTime time;
+                    DateTime.TryParseExact(dateString, "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out time);
+
+                    this.Invoke((MethodInvoker)(() =>
+                    {
+                        UpdateOrderStatusUI();
+                    }));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in HandleWebSocketMessage: {ex.Message}");
+            }
+        }
+
         private void LoadSummaryCards()
         {
+            if (cardsPanel == null) return;
+
             cardsPanel.Controls.Clear();
 
             var sYear = managermentInstance.GetSalesThisYear();
@@ -341,7 +380,10 @@ namespace Order_Monitor.ListControl
 
         private void LoadChartFor(string range)
         {
+            if (salesChart == null) return;
+
             salesChart.Series.Clear();
+
             var series = new Series("Doanh số")
             {
                 ChartType = SeriesChartType.Line,
@@ -437,12 +479,19 @@ namespace Order_Monitor.ListControl
 
         private void LoadBestSellers()
         {
+            if (bestSellerPanel == null) return;
+
             bestSellerPanel.Controls.Clear();
 
             var items = managermentInstance.GetBestSellers(10);
             if (!items.Any())
             {
-                var lbl = new Label { Text = "Không có dữ liệu", ForeColor = Color.LightGray, AutoSize = true, Padding = new Padding(10) };
+                var lbl = new Label {
+                    Text = "Không có dữ liệu",
+                    ForeColor = Color.LightGray,
+                    AutoSize = true,
+                    Padding = new Padding(10)
+                };
                 bestSellerPanel.Controls.Add(lbl);
                 return;
             }
@@ -458,24 +507,56 @@ namespace Order_Monitor.ListControl
                     BackColor = Color.FromArgb(60, 60, 63)
                 };
 
-                // image placeholder
-                var img = new Panel { Width = 70, Height = 70, Left = 8, Top = 10, BackColor = Color.FromArgb(80, 80, 83) };
-                // you can replace with PictureBox and load actual images if available
+                // Temp IMG
+                var img = new Panel { 
+                    Width = 70,
+                    Height = 70,
+                    Left = 8,
+                    Top = 10,
+                    BackColor = Color.FromArgb(80, 80, 83)
+                };
 
-                var lblName = new Label { Text = it.Name, Left = 86, Top = 10, Width = 120, Height = 28, ForeColor = Color.White, Font = new Font("Tahoma", 9, FontStyle.Bold) };
-                var lblQty = new Label { Text = $"Số lượng: {it.Quantity}", Left = 86, Top = 34, Width = 120, Height = 18, ForeColor = Color.LightGray, Font = new Font("Tahoma", 8) };
+                var lblNameFood = new Label {
+                    Text = it.Name,
+                    Left = 86,
+                    Top = 10,
+                    Width = 120,
+                    Height = 28,
+                    ForeColor = Color.White,
+                    Font = new Font("Tahoma", 9, FontStyle.Bold)
+                };
+                var lblQty = new Label {
+                    Text = $"Đã bán được: {it.Quantity}",
+                    Left = 86,
+                    Top = 45,
+                    Width = 120,
+                    Height = 18,
+                    ForeColor = Color.LightGray,
+                    Font = new Font("Tahoma", 8, FontStyle.Bold)
+                };
 
-                // progress
-                var pb = new ProgressBar { Left = 86, Top = 54, Width = 120, Height = 14 };
+                var pb = new ProgressBar {
+                    Left = 86,
+                    Top = 65,
+                    Width = 120,
+                    Height = 14
+                };
                 var ratio = maxQty == 0 ? 0 : (int)Math.Round((double)it.Quantity / maxQty * 100);
                 pb.Value = Math.Min(Math.Max(ratio, 0), 100);
 
                 card.Controls.Add(img);
-                card.Controls.Add(lblName);
+                card.Controls.Add(lblNameFood);
                 card.Controls.Add(lblQty);
                 card.Controls.Add(pb);
                 bestSellerPanel.Controls.Add(card);
             }
+        }
+
+        private void UpdateOrderStatusUI()
+        {
+            LoadSummaryCards();
+            LoadChartFor(cbRange.SelectedItem?.ToString() ?? "Week");
+            LoadBestSellers();
         }
 
         private void ViewPanelBrowseOrder()

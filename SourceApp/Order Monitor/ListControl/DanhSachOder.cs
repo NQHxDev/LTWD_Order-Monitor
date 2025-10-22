@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using Microsoft.VisualBasic;
 using Base_DAL.ContextDatabase;
 using Base_BUS;
+using Newtonsoft.Json;
 
 namespace Order_Monitor.ListControl
 {
@@ -242,7 +243,6 @@ namespace Order_Monitor.ListControl
             WebSocketManager.Instance.SendOrderStatus(orderId, "accepted");
 
             var allIngredients = new List<food_ingredient>();
-
             foreach (var item in order["cart"])
             {
                 int foodId = (int)item["id"];
@@ -254,9 +254,7 @@ namespace Order_Monitor.ListControl
             var dangThucHienPanel = FindDangThucHienPanel(parentForm);
 
             if (dangThucHienPanel != null)
-            {
                 dangThucHienPanel.AddOrder(order, allIngredients);
-            }
 
             UpdateStatusOrder(orderId, 1);
 
@@ -324,9 +322,9 @@ namespace Order_Monitor.ListControl
                 btnCancel.Click += (s, e) => { dialog.DialogResult = DialogResult.Cancel; };
 
                 dialog.Controls.AddRange(new Control[] {
-            new Label() { Text = "Lý do hủy đơn:", Location = new Point(20, 20), Font = new Font("Segoe UI", 10) },
-            txtReason, btnOK, btnCancel
-        });
+                    new Label() { Text = "Lý do hủy đơn:", Location = new Point(20, 20), Font = new Font("Segoe UI", 10) },
+                    txtReason, btnOK, btnCancel
+                });
 
                 dialog.AcceptButton = btnOK;
                 dialog.CancelButton = btnCancel;
@@ -419,11 +417,11 @@ namespace Order_Monitor.ListControl
             }
         }
 
-        private void HandleWebSocketMessage(string msg)
+        private void HandleWebSocketMessage(string message)
         {
             try
             {
-                var json = JObject.Parse(msg);
+                var json = JObject.Parse(message);
                 if (json["type"]?.ToString() == "orderFood")
                 {
                     var order = json["payload"];
