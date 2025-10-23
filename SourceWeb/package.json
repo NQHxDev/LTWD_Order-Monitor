@@ -5,7 +5,7 @@
    "main": "server.js",
    "type": "module",
    "scripts": {
-      "dev": "nodemon ./Src/server.js",
+      "dev": "nodemon --quiet ./Src/server.js",
       "start": "node ./Src/server.js"
    },
    "keywords": [],

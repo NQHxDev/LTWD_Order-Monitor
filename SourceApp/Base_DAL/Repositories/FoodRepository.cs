@@ -10,6 +10,14 @@ namespace Base_DAL.Repositories
 {
     public class FoodRepository
     {
+        public List<food> GetListFoods()
+        {
+            using (var context = new OrderMonitor())
+            {
+                return context.food.ToList();
+            }
+        }
+
         public List<unit> GetAllUnits()
         {
             using (var context = new OrderMonitor())
@@ -23,14 +31,6 @@ namespace Base_DAL.Repositories
             using (var context = new OrderMonitor())
             {
                 return context.item.Include(i => i.unit).ToList();
-            }
-        }
-
-        public List<food> GetAllFoods()
-        {
-            using (var context = new OrderMonitor())
-            {
-                return context.food.ToList();
             }
         }
 

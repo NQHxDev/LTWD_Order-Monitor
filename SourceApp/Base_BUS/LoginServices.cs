@@ -52,7 +52,7 @@ namespace Base_BUS
 
         public void Logout(string roleUser)
         {
-            if (roleUser == "admin")
+            if (roleUser == "leader")
             {
                 Current_Leader = null;
             } 

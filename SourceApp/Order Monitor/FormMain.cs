@@ -18,17 +18,17 @@ namespace Order_Monitor
             InitializeComponent();
             FoodServices.Instance.Initialize();
 
+            WebSocketManager.Instance.Connect();
+            WebSocketManager.Instance.OnMessageReceived += HandleMessage;
+
             initControls();
 
-            WebSocketManager.Connect();
-            WebSocketManager.OnMessageReceived += HandleMessage;
-            
             ShowPanel("DanhSach");
         }
 
         private void HandleMessage(string msg)
         {
-            Console.WriteLine("Form1 nhận: " + msg);
+            Console.WriteLine("Receive Order: " + msg);
         }
 
         private void initControls()
