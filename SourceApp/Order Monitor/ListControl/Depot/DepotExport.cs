@@ -387,7 +387,7 @@ namespace Order_Monitor.ListControl
                 Label lblNote = new Label()
                 {
                     Text = $"Note: {ex.Note}",
-                    Font = new Font("Tahoma", 8, FontStyle.Bold),
+                    Font = new Font("Tahoma", 9, FontStyle.Bold),
                     ForeColor = Color.LightGray,
                     Font = new Font("Tahoma", 9),
                     Dock = DockStyle.Top,
