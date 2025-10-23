@@ -28,6 +28,7 @@ namespace Order_Monitor.ListControl
         private Chart salesChart;
         private FlowLayoutPanel bestSellerPanel;
         private ComboBox cbRange;
+        private Button btnRefresh;
 
         private string loginName = string.Empty;
         private int loginID = -1;
@@ -36,7 +37,7 @@ namespace Order_Monitor.ListControl
         {
             InitializeComponent();
 
-            WebSocketManager.Instance.OnMessageReceived += HandleWebSocketMessage;
+            // WebSocketManager.Instance.OnMessageReceived += HandleWebSocketMessage;
 
             Label titleLabel = new Label();
             titleLabel.Font = new Font("Tahoma", 16, FontStyle.Bold);
@@ -219,17 +220,71 @@ namespace Order_Monitor.ListControl
                 ForeColor = Color.White
             };
 
+            var flowPanelHeader = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Right,
+                AutoSize = true,
+                FlowDirection = FlowDirection.RightToLeft,
+                WrapContents = false
+            };
+
+            btnRefresh = new Button
+            {
+                Text = "Làm mới",
+                Width = 120,
+                Height = 30,
+                BackColor = Color.FromArgb(0, 120, 215),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Margin = new Padding(10, 5, 5, 5)
+            };
+            btnRefresh.Click += (s, e) =>
+            {
+                btnRefresh.Enabled = false;
+                btnRefresh.BackColor = Color.Gray;
+                btnRefresh.ForeColor = Color.DarkGray;
+
+                btnRefresh.Cursor = Cursors.WaitCursor;
+                try
+                {
+                    LoadSummaryCards();
+                    LoadChartFor(cbRange.SelectedItem?.ToString() ?? "Week");
+                    LoadBestSellers();
+                }
+                finally
+                {
+                    Timer timer = new Timer();
+                    timer.Interval = 3000;
+                    timer.Tick += (sender, args) =>
+                    {
+                        btnRefresh.Enabled = true;
+                        btnRefresh.Cursor = Cursors.Default;
+                        btnRefresh.BackColor = Color.FromArgb(0, 120, 215);
+                        btnRefresh.ForeColor = Color.White;
+
+                        timer.Stop();
+                        timer.Dispose();
+                    };
+                    timer.Start();
+                }
+            };
+
             cbRange = new ComboBox
             {
-                Width = 160,
+                Width = 180,
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Dock = DockStyle.Right
+                Font = new Font("Tahoma", 11, FontStyle.Regular),
+                Margin = new Padding(5)
             };
-            cbRange.Items.AddRange(new[] { "Year", "Month", "Week", "Day" });
-            cbRange.SelectedIndex = 0;
+
+            cbRange.Items.AddRange(new[] { "Day", "Week", "Month", "Year" });
+            cbRange.SelectedIndex = 1;
             cbRange.SelectedIndexChanged += (s, e) => LoadChartFor(cbRange.SelectedItem.ToString());
 
-            headerPanel.Controls.Add(cbRange);
+            flowPanelHeader.Controls.Add(btnRefresh);
+            flowPanelHeader.Controls.Add(cbRange);
+
+            headerPanel.Controls.Add(flowPanelHeader);
             headerPanel.Controls.Add(lblTitle);
 
             cardsPanel = new FlowLayoutPanel
@@ -286,37 +341,6 @@ namespace Order_Monitor.ListControl
             flowPanel.Layout += (s, e) => AdjustChildWidths();
 
             AdjustChildWidths();
-        }
-
-        private void HandleWebSocketMessage(string message)
-        {
-            Console.WriteLine("Receive Order to Managerment: " + message);
-
-            try
-            {
-                var data = JObject.Parse(message);
-                if ((string)data["type"] == "orderFood")
-                {
-                    int orderId = (int)data["payload"]["orderId"];
-                    string status = (string)data["payload"]["status"].ToString();
-                    string reason = (string)data["payload"]["note"];
-
-                    string dateString = (string)data["payload"]["created_at"];
-                    Console.WriteLine($"Raw date string: '{dateString}'");
-
-                    DateTime time;
-                    DateTime.TryParseExact(dateString, "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out time);
-
-                    this.Invoke((MethodInvoker)(() =>
-                    {
-                        UpdateOrderStatusUI();
-                    }));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in HandleWebSocketMessage: {ex.Message}");
-            }
         }
 
         private void LoadSummaryCards()
@@ -599,6 +623,37 @@ namespace Order_Monitor.ListControl
                 mainContainer.Visible = true;
             };
             this.Controls.Add(viewDepotPanel);
+        }
+
+        private void HandleWebSocketMessage(string message)
+        {
+            Console.WriteLine("Receive Order to Managerment: " + message);
+
+            try
+            {
+                var data = JObject.Parse(message);
+                if ((string)data["type"] == "orderFood")
+                {
+                    int orderId = (int)data["payload"]["orderId"];
+                    string status = (string)data["payload"]["status"].ToString();
+                    string reason = (string)data["payload"]["note"];
+
+                    string dateString = (string)data["payload"]["created_at"];
+                    Console.WriteLine($"Raw date string: '{dateString}'");
+
+                    DateTime time;
+                    DateTime.TryParseExact(dateString, "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out time);
+
+                    this.Invoke((MethodInvoker)(() =>
+                    {
+                        UpdateOrderStatusUI();
+                    }));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in HandleWebSocketMessage: {ex.Message}");
+            }
         }
     }
 }

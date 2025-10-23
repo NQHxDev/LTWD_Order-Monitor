@@ -9,11 +9,8 @@ namespace Base_DAL.Repositories
 {
     public class OrderRepository
     {
-        private readonly OrderMonitor conDatabase;
-
         public OrderRepository()
         {
-            conDatabase = new OrderMonitor();
         }
 
         public List<list_order> GetListOrder()
