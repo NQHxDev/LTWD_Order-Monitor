@@ -389,18 +389,8 @@ namespace Order_Monitor.ListControl
                     Text = $"Note: {ex.Note}",
                     Font = new Font("Tahoma", 9, FontStyle.Bold),
                     ForeColor = Color.LightGray,
-                    Font = new Font("Tahoma", 9),
                     Dock = DockStyle.Top,
-                    Height = 30
-                };
-
-                Label lblNote = new Label()
-                {
-                    Text = $"Note: {ex.Note}",
-                    Font = new Font("Tahoma", 8, FontStyle.Bold),
-                    ForeColor = Color.LightGray,
-                    Dock = DockStyle.Top,
-                    Height = 50
+                    Height = 35
                 };
 
                 Button btnRemove = new Button()

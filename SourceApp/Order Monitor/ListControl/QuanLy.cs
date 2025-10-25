@@ -13,6 +13,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
 using System.Globalization;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 
 namespace Order_Monitor.ListControl
 {
@@ -139,6 +140,15 @@ namespace Order_Monitor.ListControl
             btnViewListEmploy.Margin = new Padding(10, 10, 10, 10);
             btnViewListEmploy.Click += (s, e) => ViewPanelListEmployees();
 
+            Button btnViewSales = new Button();
+            btnViewSales.Text = "Doanh số - Thống kê";
+            btnViewSales.Size = new Size(150, 35);
+            btnViewSales.BackColor = Color.FromArgb(0, 120, 215);
+            btnViewSales.ForeColor = Color.White;
+            btnViewSales.FlatStyle = FlatStyle.Flat;
+            btnViewSales.Margin = new Padding(10, 10, 10, 10);
+            btnViewSales.Click += (s, e) => ViewSales();
+
             Button btnLogout = new Button();
             btnLogout.Text = "Đăng xuất";
             btnLogout.Size = new Size(100, 35);
@@ -162,7 +172,14 @@ namespace Order_Monitor.ListControl
             lblWelcome.Font = new Font("Tahoma", 14, FontStyle.Bold);
             lblWelcome.ForeColor = Color.White;
 
-            buttonPanel.Controls.AddRange(new Control[] { btnBrowseOrder, btnViewDepot, btnViewListEmploy, btnLogout, lblWelcome });
+            buttonPanel.Controls.AddRange(new Control[] {
+                btnBrowseOrder,
+                btnViewDepot,
+                btnViewListEmploy,
+                btnViewSales,
+                btnLogout,
+                lblWelcome
+            });
 
             flowPanel = new FlowLayoutPanel();
             flowPanel.Dock = DockStyle.Fill;
@@ -254,7 +271,7 @@ namespace Order_Monitor.ListControl
                 finally
                 {
                     Timer timer = new Timer();
-                    timer.Interval = 3000;
+                    timer.Interval = 5000;
                     timer.Tick += (sender, args) =>
                     {
                         btnRefresh.Enabled = true;
@@ -415,6 +432,17 @@ namespace Order_Monitor.ListControl
             };
             salesChart.Series.Add(series);
             salesChart.ChartAreas["Main"].AxisX.LabelStyle.Format = "dd/MM";
+            salesChart.ChartAreas["Main"].AxisX.LabelStyle.ForeColor = Color.White;
+            salesChart.ChartAreas["Main"].AxisX.LineColor = Color.White;
+            salesChart.ChartAreas["Main"].AxisX.MajorGrid.LineColor = Color.Gray;
+            salesChart.ChartAreas["Main"].AxisX.TitleForeColor = Color.White;
+
+            salesChart.ChartAreas["Main"].AxisY.LabelStyle.ForeColor = Color.White;
+            salesChart.ChartAreas["Main"].AxisY.LineColor = Color.White;
+            salesChart.ChartAreas["Main"].AxisY.MajorGrid.LineColor = Color.Gray;
+            salesChart.ChartAreas["Main"].AxisY.TitleForeColor = Color.White;
+
+            salesChart.ChartAreas["Main"].BackColor = Color.Transparent;
 
             DateTime from, to;
             if (range == "Year")
@@ -441,7 +469,8 @@ namespace Order_Monitor.ListControl
 
                 salesChart.ChartAreas["Main"].AxisX.LabelStyle.Angle = -45;
                 salesChart.Titles.Clear();
-                salesChart.Titles.Add($"Doanh số theo tháng - {now.Year}");
+                var title = salesChart.Titles.Add($"Doanh số Năm: {now.Year}");
+                title.ForeColor = Color.White;
             }
             else if (range == "Month")
             {
@@ -455,7 +484,8 @@ namespace Order_Monitor.ListControl
 
                 series.Points.DataBindXY(xValues, yValues);
                 salesChart.Titles.Clear();
-                salesChart.Titles.Add($"Doanh số ngày trong tháng {now.Month}/{now.Year}");
+                var title = salesChart.Titles.Add($"Doanh số Tháng: {now.Month}/{now.Year}");
+                title.ForeColor = Color.White;
             }
             else if (range == "Week")
             {
@@ -477,27 +507,32 @@ namespace Order_Monitor.ListControl
 
                 series.Points.DataBindXY(xValues, yValues);
                 salesChart.Titles.Clear();
-                salesChart.Titles.Add($"Doanh số tuần ({startOfWeek:dd/MM} - {startOfWeek.AddDays(6):dd/MM})");
+                var title = salesChart.Titles.Add($"Doanh số Tuần: [{startOfWeek:dd/MM} - {startOfWeek.AddDays(6):dd/MM}]");
+                title.ForeColor = Color.White;
             }
-            else // Day
+            else
             {
                 var today = DateTime.Now.Date;
-                // Hiển thị chi tiết theo giờ (0..23)
                 var points = new List<(string Hour, decimal Total)>();
-                for (int h = 0; h < 24; h++)
+
+                for (int h = 0; h < 24; h += 2)
                 {
                     var s = today.AddHours(h);
-                    var e = s.AddHours(1).AddTicks(-1);
-                    var total = managermentInstance.GetSalesFoods(s, e).Total;
-                    points.Add((h.ToString("D2") + ":00", total));
+                    var e = s.AddHours(2).AddTicks(-1);
+                    var total = managermentInstance.GetSalesFoods(s, e)?.Total ?? 0;
+                    points.Add(($"{h:D2}:00 - {(h + 2):D2}:00", total));
                 }
 
                 var xValues = points.Select(p => p.Hour).ToList();
                 var yValues = points.Select(p => p.Total).ToList();
 
                 series.Points.DataBindXY(xValues, yValues);
+                series.ChartType = SeriesChartType.Column;
+
+                salesChart.ChartAreas["Main"].AxisX.LabelStyle.Angle = -45;
                 salesChart.Titles.Clear();
-                salesChart.Titles.Add($"Doanh số theo giờ - {today:dd/MM/yyyy}");
+                var title = salesChart.Titles.Add($"Doanh số: Mỗi 2 giờ - Ngày: {today:dd/MM/yy}");
+                title.ForeColor = Color.White;
             }
         }
 
@@ -623,6 +658,20 @@ namespace Order_Monitor.ListControl
                 mainContainer.Visible = true;
             };
             this.Controls.Add(viewDepotPanel);
+        }
+
+        private void ViewSales()
+        {
+            mainContainer.Visible = false;
+
+            ViewSales viewSales = new ViewSales(LoginServices.Instance.Current_Leader.ac_id);
+            viewSales.Dock = DockStyle.Fill;
+            viewSales.BackButtonClicked += () =>
+            {
+                this.Controls.Remove(viewSales);
+                mainContainer.Visible = true;
+            };
+            this.Controls.Add(viewSales);
         }
 
         private void HandleWebSocketMessage(string message)

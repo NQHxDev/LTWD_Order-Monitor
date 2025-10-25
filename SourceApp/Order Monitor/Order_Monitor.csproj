@@ -186,6 +186,12 @@
     <Compile Include="ListControl\Manager\ViewDepot.Designer.cs">
       <DependentUpon>ViewDepot.cs</DependentUpon>
     </Compile>
+    <Compile Include="ListControl\Manager\ViewSales.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ListControl\Manager\ViewSales.Designer.cs">
+      <DependentUpon>ViewSales.cs</DependentUpon>
+    </Compile>
     <Compile Include="ListControl\MenuFood.cs">
       <SubType>UserControl</SubType>
     </Compile>
