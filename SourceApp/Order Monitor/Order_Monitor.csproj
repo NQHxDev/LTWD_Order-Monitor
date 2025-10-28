@@ -150,6 +150,12 @@
     <Compile Include="ListControl\Depot\DepotOrder.Designer.cs">
       <DependentUpon>DepotOrder.cs</DependentUpon>
     </Compile>
+    <Compile Include="ListControl\Depot\HandlingImport.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ListControl\Depot\HandlingImport.Designer.cs">
+      <DependentUpon>HandlingImport.cs</DependentUpon>
+    </Compile>
     <Compile Include="ListControl\Kho.cs">
       <SubType>UserControl</SubType>
     </Compile>

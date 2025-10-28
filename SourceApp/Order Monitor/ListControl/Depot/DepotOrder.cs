@@ -6,6 +6,7 @@ using System.Data.Entity;
 using System.Windows.Forms;
 using Base_DAL.ContextDatabase;
 using Base_BUS;
+using DepotOrderItem = Base_BUS.DepotServices.DepotOrderItem;
 
 namespace Order_Monitor.ListControl
 {
@@ -411,52 +412,8 @@ namespace Order_Monitor.ListControl
                 return;
             }
 
-            using (var contextDB = new OrderMonitor())
-            {
-                var import = new import
-                {
-                    create_at = DateTime.Now,
-                    import_status = 0,
-                    created_by = created_ByID
-                };
-                contextDB.import.Add(import);
-                contextDB.SaveChanges();
-
-                foreach (var item in selectedItems)
-                {
-                    int itemId;
-
-                    if (item.IsNew)
-                    {
-                        var newItem = new item
-                        {
-                            name = item.ItemName,
-                            unit_id = item.UnitId,
-                            import_price = 0,
-                            is_active = true,
-                            quantity = 0
-                        };
-                        contextDB.item.Add(newItem);
-                        contextDB.SaveChanges();
-                        itemId = newItem.item_id;
-                    }
-                    else
-                    {
-                        itemId = item.ItemId ?? 0;
-                    }
-
-                    var detail = new import_detail
-                    {
-                        import_id = import.import_id,
-                        item_id = itemId,
-                        quantity = item.Quantity
-                    };
-                    contextDB.import_detail.Add(detail);
-                }
-
-                contextDB.SaveChanges();
-                ClearAll();
-            }
+            DepotServices.Instance.SaveOrderImport(created_ByID, selectedItems);
+            ClearAll();
         }
 
         private void ClearAll()
@@ -466,14 +423,5 @@ namespace Order_Monitor.ListControl
             txtNewItemName.Text = "";
             txtQuantity.Text = "";
         }
-    }
-
-    public class DepotOrderItem
-    {
-        public int? ItemId { get; set; }
-        public string ItemName { get; set; }
-        public int UnitId { get; set; }
-        public decimal Quantity { get; set; }
-        public bool IsNew { get; set; }
     }
 }

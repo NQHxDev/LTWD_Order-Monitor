@@ -38,8 +38,6 @@ namespace Order_Monitor.ListControl
         {
             InitializeComponent();
 
-            // WebSocketManager.Instance.OnMessageReceived += HandleWebSocketMessage;
-
             Label titleLabel = new Label();
             titleLabel.Font = new Font("Tahoma", 16, FontStyle.Bold);
             titleLabel.ForeColor = Color.White;
@@ -62,7 +60,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Controls.Clear();
 
-            if (!LoginServices.Instance.IsLogged_Leader)
+            if (!AccountServices.Instance.IsLogged_Leader)
             {
                 var loginPanel = new Login();
                 loginPanel.Dock = DockStyle.Fill;
@@ -81,7 +79,7 @@ namespace Order_Monitor.ListControl
                     {
                         if (userLogin != null)
                         {
-                            LoginServices.Instance.Logout("leader");
+                            AccountServices.Instance.Logout("leader");
                             LoadView();
                         }
                     }
@@ -91,7 +89,7 @@ namespace Order_Monitor.ListControl
             else
             {
                 InitializePanel();
-                InitializeComponentManual();
+                InitializeComponentPanel();
                 LoadSummaryCards();
                 LoadChartFor("Week");
                 LoadBestSellers();
@@ -116,7 +114,7 @@ namespace Order_Monitor.ListControl
             Button btnBrowseOrder = new Button();
             btnBrowseOrder.Text = "Duyệt đơn Đặt Hàng";
             btnBrowseOrder.Size = new Size(150, 35);
-            btnBrowseOrder.BackColor = Color.FromArgb(0, 120, 215);
+            btnBrowseOrder.BackColor = Color.FromArgb(3, 161, 252);
             btnBrowseOrder.ForeColor = Color.White;
             btnBrowseOrder.FlatStyle = FlatStyle.Flat;
             btnBrowseOrder.Margin = new Padding(10, 10, 10, 10);
@@ -125,7 +123,7 @@ namespace Order_Monitor.ListControl
             Button btnViewDepot = new Button();
             btnViewDepot.Text = "Xem Kho hàng";
             btnViewDepot.Size = new Size(120, 35);
-            btnViewDepot.BackColor = Color.FromArgb(0, 120, 215);
+            btnViewDepot.BackColor = Color.FromArgb(3, 161, 252);
             btnViewDepot.ForeColor = Color.White;
             btnViewDepot.FlatStyle = FlatStyle.Flat;
             btnViewDepot.Margin = new Padding(10, 10, 10, 10);
@@ -134,7 +132,7 @@ namespace Order_Monitor.ListControl
             Button btnViewListEmploy = new Button();
             btnViewListEmploy.Text = "Danh sách Nhân viên";
             btnViewListEmploy.Size = new Size(150, 35);
-            btnViewListEmploy.BackColor = Color.FromArgb(0, 120, 215);
+            btnViewListEmploy.BackColor = Color.FromArgb(3, 161, 252);
             btnViewListEmploy.ForeColor = Color.White;
             btnViewListEmploy.FlatStyle = FlatStyle.Flat;
             btnViewListEmploy.Margin = new Padding(10, 10, 10, 10);
@@ -143,7 +141,7 @@ namespace Order_Monitor.ListControl
             Button btnViewSales = new Button();
             btnViewSales.Text = "Doanh số - Thống kê";
             btnViewSales.Size = new Size(150, 35);
-            btnViewSales.BackColor = Color.FromArgb(0, 120, 215);
+            btnViewSales.BackColor = Color.FromArgb(3, 161, 252);
             btnViewSales.ForeColor = Color.White;
             btnViewSales.FlatStyle = FlatStyle.Flat;
             btnViewSales.Margin = new Padding(10, 10, 10, 10);
@@ -158,7 +156,7 @@ namespace Order_Monitor.ListControl
             btnLogout.Margin = new Padding(10, 10, 10, 10);
             btnLogout.Click += (s, e) =>
             {
-                LoginServices.Instance.Logout("leader");
+                AccountServices.Instance.Logout("leader");
                 loginName = string.Empty;
                 loginID = -1;
                 LoadView();
@@ -184,9 +182,6 @@ namespace Order_Monitor.ListControl
             flowPanel = new FlowLayoutPanel();
             flowPanel.Dock = DockStyle.Fill;
             flowPanel.AutoScroll = true;
-            flowPanel.WrapContents = true;
-            flowPanel.FlowDirection = FlowDirection.LeftToRight;
-            flowPanel.Padding = new Padding(10);
 
             Label spacer = new Label();
             spacer.Dock = DockStyle.Top;
@@ -200,10 +195,9 @@ namespace Order_Monitor.ListControl
             mainContainer.Controls.Add(mainPanel);
         }
 
-        private void InitializeComponentManual()
+        private void InitializeComponentPanel()
         {
             flowPanel.Controls.Clear();
-            flowPanel.AutoScroll = true;
             flowPanel.WrapContents = false;
             flowPanel.FlowDirection = FlowDirection.TopDown;
             flowPanel.Padding = new Padding(10);
@@ -611,18 +605,11 @@ namespace Order_Monitor.ListControl
             }
         }
 
-        private void UpdateOrderStatusUI()
-        {
-            LoadSummaryCards();
-            LoadChartFor(cbRange.SelectedItem?.ToString() ?? "Week");
-            LoadBestSellers();
-        }
-
         private void ViewPanelBrowseOrder()
         {
             mainContainer.Visible = false;
 
-            BrowseOrder browerOrderPanel = new BrowseOrder(LoginServices.Instance.Current_Leader.ac_id);
+            BrowseOrder browerOrderPanel = new BrowseOrder(AccountServices.Instance.Current_Leader.ac_id);
             browerOrderPanel.Dock = DockStyle.Fill;
             browerOrderPanel.BackButtonClicked += () =>
             {
@@ -636,7 +623,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            ListEmployees listEmployeesPanel = new ListEmployees(LoginServices.Instance.Current_Leader.ac_id);
+            ListEmployees listEmployeesPanel = new ListEmployees(AccountServices.Instance.Current_Leader.ac_id);
             listEmployeesPanel.Dock = DockStyle.Fill;
             listEmployeesPanel.BackButtonClicked += () =>
             {
@@ -650,7 +637,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            ViewDepot viewDepotPanel = new ViewDepot(LoginServices.Instance.Current_Leader.ac_id);
+            ViewDepot viewDepotPanel = new ViewDepot(AccountServices.Instance.Current_Leader.ac_id);
             viewDepotPanel.Dock = DockStyle.Fill;
             viewDepotPanel.BackButtonClicked += () =>
             {
@@ -664,7 +651,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            ViewSales viewSales = new ViewSales(LoginServices.Instance.Current_Leader.ac_id);
+            ViewSales viewSales = new ViewSales(AccountServices.Instance.Current_Leader.ac_id);
             viewSales.Dock = DockStyle.Fill;
             viewSales.BackButtonClicked += () =>
             {
@@ -672,37 +659,6 @@ namespace Order_Monitor.ListControl
                 mainContainer.Visible = true;
             };
             this.Controls.Add(viewSales);
-        }
-
-        private void HandleWebSocketMessage(string message)
-        {
-            Console.WriteLine("Receive Order to Managerment: " + message);
-
-            try
-            {
-                var data = JObject.Parse(message);
-                if ((string)data["type"] == "orderFood")
-                {
-                    int orderId = (int)data["payload"]["orderId"];
-                    string status = (string)data["payload"]["status"].ToString();
-                    string reason = (string)data["payload"]["note"];
-
-                    string dateString = (string)data["payload"]["created_at"];
-                    Console.WriteLine($"Raw date string: '{dateString}'");
-
-                    DateTime time;
-                    DateTime.TryParseExact(dateString, "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out time);
-
-                    this.Invoke((MethodInvoker)(() =>
-                    {
-                        UpdateOrderStatusUI();
-                    }));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in HandleWebSocketMessage: {ex.Message}");
-            }
         }
     }
 }

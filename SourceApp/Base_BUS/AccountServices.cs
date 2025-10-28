@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 
 namespace Base_BUS
 {
-    public class LoginServices
+    public class AccountServices
     {
-        private static LoginServices _instance;
+        private static AccountServices _instance;
 
-        public static LoginServices Instance
+        public static AccountServices Instance
         {
             get
             {
                 if (_instance == null)
-                    _instance = new LoginServices();
+                    _instance = new AccountServices();
                 return _instance;
             }
         }
@@ -31,9 +31,15 @@ namespace Base_BUS
 
         public bool IsLogged_Leader => Current_Leader != null;
 
-        private LoginServices()
+        private AccountServices()
         {
             accountRepo = new AccountRepository();
+        }
+
+        public string GetNameUser(int? accountId)
+        {
+            var account = accountRepo.GetAccountById(accountId);
+            return account != null ? account.name : $"User ID: {accountId}";
         }
 
         public account Login(string username, string password)

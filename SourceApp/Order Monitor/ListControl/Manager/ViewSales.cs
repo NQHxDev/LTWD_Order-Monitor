@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Base_BUS;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -58,14 +59,15 @@ namespace Order_Monitor.ListControl.Manager
             buttonPanel.Controls.AddRange(new Control[] { btnBack });
             btnBack.Click += (s, e) => BackButtonClicked?.Invoke();
 
-            flowPanel = new FlowLayoutPanel();
-            flowPanel.Dock = DockStyle.Fill;
-            flowPanel.AutoScroll = true;
-            flowPanel.WrapContents = true;
-            flowPanel.FlowDirection = FlowDirection.LeftToRight;
-            flowPanel.Padding = new Padding(10);
-            flowPanel.AutoSize = false;
-            flowPanel.AutoSizeMode = AutoSizeMode.GrowOnly;
+            flowPanel = new FlowLayoutPanel()
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                WrapContents = false,
+                FlowDirection = FlowDirection.TopDown,
+                Padding = new Padding(10),
+                AutoSize = false,
+            };
 
             Label spacer = new Label();
             spacer.Dock = DockStyle.Top;
