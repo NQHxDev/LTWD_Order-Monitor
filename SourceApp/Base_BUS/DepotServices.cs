@@ -34,6 +34,14 @@ namespace Base_BUS
             public bool IsNew { get; set; }
         }
 
+        public import GetImportByID(int orderImportID)
+        {
+            using (var contextDB = new OrderMonitor())
+            {
+                return contextDB.import.Include("account").FirstOrDefault(i => i.import_id == orderImportID);
+            }
+        }
+
         public void SaveOrderImport(int created_ByID, List<DepotOrderItem> selectedItems)
         {
             using (var contextDB = new OrderMonitor())
@@ -44,13 +52,18 @@ namespace Base_BUS
                     import_status = 0,
                     created_by = created_ByID,
                     total_item = selectedItems.Count,
+                    total_price = 0
                 };
+
                 contextDB.import.Add(import);
                 contextDB.SaveChanges();
+
+                decimal totalPrice = 0;
 
                 foreach (var item in selectedItems)
                 {
                     int itemId;
+                    decimal importPrice = 0;
 
                     if (item.IsNew)
                     {
@@ -62,14 +75,29 @@ namespace Base_BUS
                             is_active = true,
                             quantity = 0
                         };
+
                         contextDB.item.Add(newItem);
                         contextDB.SaveChanges();
+
                         itemId = newItem.item_id;
+                        importPrice = 0;
                     }
                     else
                     {
-                        itemId = item.ItemId ?? 0;
+                        var currentItem = contextDB.item.FirstOrDefault(x => x.item_id == item.ItemId);
+
+                        if (currentItem != null)
+                        {
+                            itemId = currentItem.item_id;
+                            importPrice = currentItem.import_price;
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
+
+                    totalPrice += importPrice * item.Quantity;
 
                     var detail = new import_detail
                     {
@@ -77,8 +105,12 @@ namespace Base_BUS
                         item_id = itemId,
                         quantity = item.Quantity
                     };
+
                     contextDB.import_detail.Add(detail);
                 }
+
+                import.total_price = totalPrice;
+
                 contextDB.SaveChanges();
             }
         }
@@ -103,15 +135,14 @@ namespace Base_BUS
             return listOrderImport;
         }
 
-        public List<import_detail> GetImportDetailByID(int import_id)
+        public List<import_detail> GetImportDetailByID(int orderImportID)
         {
             var listImportDetail = new List<import_detail>();
             using (var conDatabase = new OrderMonitor())
             {
                 listImportDetail = conDatabase.import_detail
-                    .Include("account")
-                    .Include("item")
-                    .Where(id => id.import_id == import_id)
+                    .Include("item.unit")
+                    .Where(id => id.import_id == orderImportID)
                     .ToList();
             }
             return listImportDetail;

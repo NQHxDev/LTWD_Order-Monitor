@@ -108,35 +108,41 @@ namespace Order_Monitor.ListControl
                     statusColor = Color.FromArgb(0, 122, 204);
                 }
 
-                Panel card = new Panel();
-                card.Width = 260;
-                card.Height = 250;
-                card.BackColor = Color.FromArgb(45, 45, 45);
-                card.BorderStyle = BorderStyle.FixedSingle;
-                card.Margin = new Padding(10);
-                card.Padding = new Padding(10);
-                card.Cursor = Cursors.Hand;
+                Panel card = new Panel()
+                {
+                    Width = 260,
+                    Height = 250,
+                    BackColor = Color.FromArgb(45, 45, 45),
+                    BorderStyle = BorderStyle.FixedSingle,
+                    Margin = new Padding(10),
+                    Padding = new Padding(10),
+                    Cursor = Cursors.Hand
+                };
 
-                Label lblName = new Label();
-                lblName.Text = $"Mã Đơn đặt hàng: #{orderImport.import_id}";
-                lblName.Font = new Font("Tahoma", 11, FontStyle.Bold);
-                lblName.ForeColor = Color.White;
-                lblName.AutoSize = false;
-                lblName.Height = 30;
-                lblName.Dock = DockStyle.Top;
+                Label lblName = new Label()
+                {
+                    Text = $"Mã đơn Đặt hàng: #{orderImport.import_id}",
+                    Font = new Font("Tahoma", 12, FontStyle.Bold),
+                    ForeColor = Color.White,
+                    AutoSize = false,
+                    Height = 30,
+                    Dock = DockStyle.Top
+                };
 
-                Label lblDetail = new Label();
-                lblDetail.Dock = DockStyle.Fill;
-                lblDetail.ForeColor = Color.Gainsboro;
-                lblDetail.Font = new Font("Tahoma", 10);
-                lblDetail.Padding = new Padding(0, 5, 0, 5);
-                lblDetail.Text =
+                Label lblDetail = new Label()
+                {
+                    Dock = DockStyle.Fill,
+                    ForeColor = Color.Gainsboro,
+                    Font = new Font("Tahoma", 10),
+                    Padding = new Padding(0, 5, 0, 5),
+                    Text =
                     $"Nhân viên Đặt hàng: {AccountServices.Instance.GetNameUser(orderImport.created_by)}\n\n" +
                     $"Số lượng Nguyên liệu: {orderImport.total_item}\n" +
                     $"{totalPriceOrder}: {orderImport.total_price:N0} VNĐ\n" +
-                    $"Ngày đặt đơn hàng: {orderImport.create_at?.ToString("dd/MM/yyyy") ?? ""}";
+                    $"Ngày đặt đơn hàng: {orderImport.create_at?.ToString("dd/MM/yyyy") ?? ""}"
+                };
 
-                btnOrderImportStatus = new Button()
+                btnOrderImportStatus = new Button() 
                 {
                     Text = statusTextButtom,
                     Font = new Font("Tahoma", 11, FontStyle.Bold),
@@ -144,13 +150,19 @@ namespace Order_Monitor.ListControl
                     Height = 40,
                     TextAlign = ContentAlignment.MiddleCenter,
                     BackColor = statusColor,
+                    Tag = orderImport.import_id
                 };
 
                 if(orderImport.import_status != 1)
                 {
                     btnOrderImportStatus.Enabled = false;
                 }
-                btnOrderImportStatus.Click += (s, e) => HadlingImportPanel();
+                btnOrderImportStatus.Click += (s, e) =>
+                {
+                    var button = s as Button;
+                    int orderImportID = (int) button.Tag;
+                    HadlingImportPanel(orderImportID);
+                };
 
                 card.Controls.Add(lblDetail);
                 card.Controls.Add(btnOrderImportStatus);
@@ -171,11 +183,11 @@ namespace Order_Monitor.ListControl
             }
         }
 
-        private void HadlingImportPanel()
+        private void HadlingImportPanel(int orderImportID)
         {
             mainContainer.Visible = false;
 
-            HandlingImport hadlingImport = new HandlingImport(import_ByID);
+            HandlingImport hadlingImport = new HandlingImport(import_ByID, orderImportID);
             hadlingImport.Dock = DockStyle.Fill;
             hadlingImport.BackButtonClicked += () =>
             {

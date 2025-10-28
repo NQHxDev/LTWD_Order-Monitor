@@ -38,8 +38,6 @@ namespace Order_Monitor.ListControl
         {
             InitializeComponent();
 
-            // WebSocketManager.Instance.OnMessageReceived += HandleWebSocketMessage;
-
             Label titleLabel = new Label();
             titleLabel.Font = new Font("Tahoma", 16, FontStyle.Bold);
             titleLabel.ForeColor = Color.White;
@@ -607,13 +605,6 @@ namespace Order_Monitor.ListControl
             }
         }
 
-        private void UpdateOrderStatusUI()
-        {
-            LoadSummaryCards();
-            LoadChartFor(cbRange.SelectedItem?.ToString() ?? "Week");
-            LoadBestSellers();
-        }
-
         private void ViewPanelBrowseOrder()
         {
             mainContainer.Visible = false;
@@ -668,37 +659,6 @@ namespace Order_Monitor.ListControl
                 mainContainer.Visible = true;
             };
             this.Controls.Add(viewSales);
-        }
-
-        private void HandleWebSocketMessage(string message)
-        {
-            Console.WriteLine("Receive Order to Managerment: " + message);
-
-            try
-            {
-                var data = JObject.Parse(message);
-                if ((string)data["type"] == "orderFood")
-                {
-                    int orderId = (int)data["payload"]["orderId"];
-                    string status = (string)data["payload"]["status"].ToString();
-                    string reason = (string)data["payload"]["note"];
-
-                    string dateString = (string)data["payload"]["created_at"];
-                    Console.WriteLine($"Raw date string: '{dateString}'");
-
-                    DateTime time;
-                    DateTime.TryParseExact(dateString, "MM/dd/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out time);
-
-                    this.Invoke((MethodInvoker)(() =>
-                    {
-                        UpdateOrderStatusUI();
-                    }));
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in HandleWebSocketMessage: {ex.Message}");
-            }
         }
     }
 }
