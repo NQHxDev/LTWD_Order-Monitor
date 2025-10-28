@@ -15,5 +15,10 @@ namespace Base_DAL.Repositories
         {
             return ConDatabase.account.FirstOrDefault(acc => acc.username == username && acc.password == password);
         }
+
+        public account GetAccountById(int? accountId)
+        {
+            return ConDatabase.account.FirstOrDefault(acc => acc.ac_id == accountId);
+        }
     }
 }

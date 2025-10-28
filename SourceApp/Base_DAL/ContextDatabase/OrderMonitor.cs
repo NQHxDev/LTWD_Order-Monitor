@@ -75,7 +75,7 @@ namespace Base_DAL.ContextDatabase
                 .HasPrecision(10, 3);
 
             modelBuilder.Entity<import>()
-                .Property(e => e.total_value)
+                .Property(e => e.total_price)
                 .HasPrecision(12, 2);
 
             modelBuilder.Entity<import>()

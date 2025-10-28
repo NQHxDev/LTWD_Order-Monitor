@@ -20,13 +20,15 @@ namespace Base_DAL.ContextDatabase
 
         public DateTime? create_at { get; set; }
 
-        public decimal total_value { get; set; }
+        public decimal total_price { get; set; }
 
         public int? created_by { get; set; }
 
         public int import_status { get; set; }
 
         public int? update_by { get; set; }
+
+        public int total_item { get; set; }
 
         public virtual account account { get; set; }
 

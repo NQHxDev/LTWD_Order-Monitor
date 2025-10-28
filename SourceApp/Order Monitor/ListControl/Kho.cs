@@ -41,7 +41,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Controls.Clear();
 
-            if (!LoginServices.Instance.IsLogged_Staff)
+            if (!AccountServices.Instance.IsLogged_Staff)
             {
                 var loginPanel = new Login();
                 loginPanel.Dock = DockStyle.Fill;
@@ -112,12 +112,12 @@ namespace Order_Monitor.ListControl
             btnLogout.Click += (s, e) =>
             {
 
-                LoginServices.Instance.Logout("staff");
+                AccountServices.Instance.Logout("staff");
                 LoadView();
             };
 
             Label lblWelcome = new Label();
-            lblWelcome.Text = $"Xin chào: {LoginServices.Instance.Current_Staff.name}";
+            lblWelcome.Text = $"Xin chào: {AccountServices.Instance.Current_Staff.name}";
             lblWelcome.Dock = DockStyle.Fill;
             lblWelcome.Size = new Size(300, 35);
             lblWelcome.TextAlign = ContentAlignment.MiddleCenter;
@@ -215,7 +215,7 @@ namespace Order_Monitor.ListControl
             if (flowPanel.Controls.Count == 0)
             {
                 Label lblEmpty = new Label();
-                lblEmpty.Text = "Không có nguyên liệu nào trong kho.";
+                lblEmpty.Text = "Không có nguyên liệu nào trong kho!";
                 lblEmpty.Font = new Font("Tahoma", 12, FontStyle.Italic);
                 lblEmpty.ForeColor = Color.Gray;
                 lblEmpty.Dock = DockStyle.Fill;
@@ -228,7 +228,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            DepotExport depotExportPanel = new DepotExport(LoginServices.Instance.Current_Staff.ac_id);
+            DepotExport depotExportPanel = new DepotExport(AccountServices.Instance.Current_Staff.ac_id);
             depotExportPanel.Dock = DockStyle.Fill;
             depotExportPanel.BackButtonClicked += () =>
             {
@@ -242,7 +242,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            DepotImport depotImportPanel = new DepotImport(LoginServices.Instance.Current_Staff.ac_id);
+            DepotImport depotImportPanel = new DepotImport(AccountServices.Instance.Current_Staff.ac_id);
             depotImportPanel.Dock = DockStyle.Fill;
             depotImportPanel.BackButtonClicked += () =>
             {
@@ -256,7 +256,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            DepotOrder depotOrderPanel = new DepotOrder(LoginServices.Instance.Current_Staff.ac_id);
+            DepotOrder depotOrderPanel = new DepotOrder(AccountServices.Instance.Current_Staff.ac_id);
             depotOrderPanel.Dock = DockStyle.Fill;
             depotOrderPanel.BackButtonClicked += () =>
             {

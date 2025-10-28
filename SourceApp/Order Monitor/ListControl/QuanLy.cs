@@ -62,7 +62,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Controls.Clear();
 
-            if (!LoginServices.Instance.IsLogged_Leader)
+            if (!AccountServices.Instance.IsLogged_Leader)
             {
                 var loginPanel = new Login();
                 loginPanel.Dock = DockStyle.Fill;
@@ -81,7 +81,7 @@ namespace Order_Monitor.ListControl
                     {
                         if (userLogin != null)
                         {
-                            LoginServices.Instance.Logout("leader");
+                            AccountServices.Instance.Logout("leader");
                             LoadView();
                         }
                     }
@@ -91,7 +91,7 @@ namespace Order_Monitor.ListControl
             else
             {
                 InitializePanel();
-                InitializeComponentManual();
+                InitializeComponentPanel();
                 LoadSummaryCards();
                 LoadChartFor("Week");
                 LoadBestSellers();
@@ -158,7 +158,7 @@ namespace Order_Monitor.ListControl
             btnLogout.Margin = new Padding(10, 10, 10, 10);
             btnLogout.Click += (s, e) =>
             {
-                LoginServices.Instance.Logout("leader");
+                AccountServices.Instance.Logout("leader");
                 loginName = string.Empty;
                 loginID = -1;
                 LoadView();
@@ -184,9 +184,6 @@ namespace Order_Monitor.ListControl
             flowPanel = new FlowLayoutPanel();
             flowPanel.Dock = DockStyle.Fill;
             flowPanel.AutoScroll = true;
-            flowPanel.WrapContents = true;
-            flowPanel.FlowDirection = FlowDirection.LeftToRight;
-            flowPanel.Padding = new Padding(10);
 
             Label spacer = new Label();
             spacer.Dock = DockStyle.Top;
@@ -200,10 +197,9 @@ namespace Order_Monitor.ListControl
             mainContainer.Controls.Add(mainPanel);
         }
 
-        private void InitializeComponentManual()
+        private void InitializeComponentPanel()
         {
             flowPanel.Controls.Clear();
-            flowPanel.AutoScroll = true;
             flowPanel.WrapContents = false;
             flowPanel.FlowDirection = FlowDirection.TopDown;
             flowPanel.Padding = new Padding(10);
@@ -622,7 +618,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            BrowseOrder browerOrderPanel = new BrowseOrder(LoginServices.Instance.Current_Leader.ac_id);
+            BrowseOrder browerOrderPanel = new BrowseOrder(AccountServices.Instance.Current_Leader.ac_id);
             browerOrderPanel.Dock = DockStyle.Fill;
             browerOrderPanel.BackButtonClicked += () =>
             {
@@ -636,7 +632,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            ListEmployees listEmployeesPanel = new ListEmployees(LoginServices.Instance.Current_Leader.ac_id);
+            ListEmployees listEmployeesPanel = new ListEmployees(AccountServices.Instance.Current_Leader.ac_id);
             listEmployeesPanel.Dock = DockStyle.Fill;
             listEmployeesPanel.BackButtonClicked += () =>
             {
@@ -650,7 +646,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            ViewDepot viewDepotPanel = new ViewDepot(LoginServices.Instance.Current_Leader.ac_id);
+            ViewDepot viewDepotPanel = new ViewDepot(AccountServices.Instance.Current_Leader.ac_id);
             viewDepotPanel.Dock = DockStyle.Fill;
             viewDepotPanel.BackButtonClicked += () =>
             {
@@ -664,7 +660,7 @@ namespace Order_Monitor.ListControl
         {
             mainContainer.Visible = false;
 
-            ViewSales viewSales = new ViewSales(LoginServices.Instance.Current_Leader.ac_id);
+            ViewSales viewSales = new ViewSales(AccountServices.Instance.Current_Leader.ac_id);
             viewSales.Dock = DockStyle.Fill;
             viewSales.BackButtonClicked += () =>
             {
