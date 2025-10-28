@@ -44,22 +44,35 @@ namespace Order_Monitor.ListControl
             mainPanel.Dock = DockStyle.Fill;
             mainPanel.BackColor = Color.FromArgb(60, 60, 60);
 
-            Panel buttonPanel = new Panel();
-            buttonPanel.Height = 50;
+            FlowLayoutPanel buttonPanel = new FlowLayoutPanel();
+            buttonPanel.Height = 60;
             buttonPanel.Dock = DockStyle.Top;
             buttonPanel.BackColor = Color.FromArgb(60, 60, 60);
+            buttonPanel.FlowDirection = FlowDirection.LeftToRight;
+            buttonPanel.WrapContents = false;
+            buttonPanel.Padding = new Padding(10, 10, 10, 10);
+            buttonPanel.AutoScroll = true;
 
             // Nút quay lại
             Button btnBack = new Button();
             btnBack.Text = "Quay Lại";
             btnBack.Size = new Size(120, 35);
-            btnBack.Location = new Point(0, 10);
-            btnBack.BackColor = Color.FromArgb(0, 122, 204);
+            btnBack.Margin = new Padding(10, 10, 10, 10);
+            btnBack.BackColor = Color.FromArgb(3, 161, 252);
             btnBack.ForeColor = Color.White;
             btnBack.FlatStyle = FlatStyle.Flat;
-
-            buttonPanel.Controls.AddRange(new Control[] { btnBack });
             btnBack.Click += (s, e) => BackButtonClicked?.Invoke();
+
+            Button btnReload = new Button();
+            btnReload.Text = "Làm mới";
+            btnReload.Size = new Size(150, 35);
+            btnReload.Margin = new Padding(10, 10, 10, 10);
+            btnReload.BackColor = Color.FromArgb(3, 161, 252);
+            btnReload.ForeColor = Color.White;
+            btnReload.FlatStyle = FlatStyle.Flat;
+            btnReload.Click += (s, e) => LoadOrderDepot();
+
+            buttonPanel.Controls.AddRange(new Control[] { btnBack, btnReload });
 
             flowPanel = new FlowLayoutPanel();
             flowPanel.Dock = DockStyle.Fill;

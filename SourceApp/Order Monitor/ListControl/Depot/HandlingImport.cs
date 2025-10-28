@@ -295,8 +295,14 @@ namespace Order_Monitor.ListControl.Depot
                     btnConfirm.BackColor = Color.Gray;
                 };
 
-                txtQty.ValueChanged += (s, e) => { btnConfirm.Enabled = true; btnConfirm.BackColor = Color.FromArgb(0, 150, 100); };
-                txtPrice.ValueChanged += (s, e) => { btnConfirm.Enabled = true; btnConfirm.BackColor = Color.FromArgb(0, 150, 100); };
+                txtQty.ValueChanged += (s, e) => { 
+                    btnConfirm.Enabled = true;
+                    btnConfirm.BackColor = Color.FromArgb(0, 150, 100);
+                };
+                txtPrice.ValueChanged += (s, e) => {
+                    btnConfirm.Enabled = true;
+                    btnConfirm.BackColor = Color.FromArgb(0, 150, 100);
+                };
 
                 controlPanel.Controls.Add(lblNhap);
                 controlPanel.Controls.Add(txtQty);

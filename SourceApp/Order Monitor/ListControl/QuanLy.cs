@@ -114,7 +114,7 @@ namespace Order_Monitor.ListControl
             Button btnBrowseOrder = new Button();
             btnBrowseOrder.Text = "Duyệt đơn Đặt Hàng";
             btnBrowseOrder.Size = new Size(150, 35);
-            btnBrowseOrder.BackColor = Color.FromArgb(0, 120, 215);
+            btnBrowseOrder.BackColor = Color.FromArgb(3, 161, 252);
             btnBrowseOrder.ForeColor = Color.White;
             btnBrowseOrder.FlatStyle = FlatStyle.Flat;
             btnBrowseOrder.Margin = new Padding(10, 10, 10, 10);
@@ -123,7 +123,7 @@ namespace Order_Monitor.ListControl
             Button btnViewDepot = new Button();
             btnViewDepot.Text = "Xem Kho hàng";
             btnViewDepot.Size = new Size(120, 35);
-            btnViewDepot.BackColor = Color.FromArgb(0, 120, 215);
+            btnViewDepot.BackColor = Color.FromArgb(3, 161, 252);
             btnViewDepot.ForeColor = Color.White;
             btnViewDepot.FlatStyle = FlatStyle.Flat;
             btnViewDepot.Margin = new Padding(10, 10, 10, 10);
@@ -132,7 +132,7 @@ namespace Order_Monitor.ListControl
             Button btnViewListEmploy = new Button();
             btnViewListEmploy.Text = "Danh sách Nhân viên";
             btnViewListEmploy.Size = new Size(150, 35);
-            btnViewListEmploy.BackColor = Color.FromArgb(0, 120, 215);
+            btnViewListEmploy.BackColor = Color.FromArgb(3, 161, 252);
             btnViewListEmploy.ForeColor = Color.White;
             btnViewListEmploy.FlatStyle = FlatStyle.Flat;
             btnViewListEmploy.Margin = new Padding(10, 10, 10, 10);
@@ -141,7 +141,7 @@ namespace Order_Monitor.ListControl
             Button btnViewSales = new Button();
             btnViewSales.Text = "Doanh số - Thống kê";
             btnViewSales.Size = new Size(150, 35);
-            btnViewSales.BackColor = Color.FromArgb(0, 120, 215);
+            btnViewSales.BackColor = Color.FromArgb(3, 161, 252);
             btnViewSales.ForeColor = Color.White;
             btnViewSales.FlatStyle = FlatStyle.Flat;
             btnViewSales.Margin = new Padding(10, 10, 10, 10);

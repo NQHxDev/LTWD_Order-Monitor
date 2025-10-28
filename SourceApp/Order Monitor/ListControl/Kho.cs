@@ -78,7 +78,7 @@ namespace Order_Monitor.ListControl
             Button btnOrder = new Button();
             btnOrder.Text = "Đặt hàng";
             btnOrder.Size = new Size(120, 35);
-            btnOrder.BackColor = Color.FromArgb(0, 120, 215);
+            btnOrder.BackColor = Color.FromArgb(3, 161, 252);
             btnOrder.ForeColor = Color.White;
             btnOrder.FlatStyle = FlatStyle.Flat;
             btnOrder.Margin = new Padding(10, 10, 10, 10);
@@ -87,7 +87,7 @@ namespace Order_Monitor.ListControl
             Button btnImport = new Button();
             btnImport.Text = "Nhập kho";
             btnImport.Size = new Size(120, 35);
-            btnImport.BackColor = Color.FromArgb(0, 120, 215);
+            btnImport.BackColor = Color.FromArgb(3, 161, 252);
             btnImport.ForeColor = Color.White;
             btnImport.FlatStyle = FlatStyle.Flat;
             btnImport.Margin = new Padding(10, 10, 10, 10);
@@ -96,7 +96,7 @@ namespace Order_Monitor.ListControl
             Button btnExport = new Button();
             btnExport.Text = "Xuất kho";
             btnExport.Size = new Size(120, 35);
-            btnExport.BackColor = Color.FromArgb(0, 120, 215);
+            btnExport.BackColor = Color.FromArgb(3, 161, 252);
             btnExport.ForeColor = Color.White;
             btnExport.FlatStyle = FlatStyle.Flat;
             btnExport.Margin = new Padding(10, 10, 10, 10);
