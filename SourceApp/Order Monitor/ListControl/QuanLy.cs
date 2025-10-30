@@ -130,8 +130,8 @@ namespace Order_Monitor.ListControl
             btnViewDepot.Click += (s, e) => ViewPanelDepot();
 
             Button btnViewListEmploy = new Button();
-            btnViewListEmploy.Text = "Danh sách Nhân viên";
-            btnViewListEmploy.Size = new Size(150, 35);
+            btnViewListEmploy.Text = "Danh sách Nhân sự";
+            btnViewListEmploy.Size = new Size(150, 35);   
             btnViewListEmploy.BackColor = Color.FromArgb(3, 161, 252);
             btnViewListEmploy.ForeColor = Color.White;
             btnViewListEmploy.FlatStyle = FlatStyle.Flat;

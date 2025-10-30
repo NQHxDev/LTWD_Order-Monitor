@@ -36,6 +36,8 @@ namespace Base_DAL.ContextDatabase
         [StringLength(100)]
         public string name { get; set; }
 
+        public int acc_status { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<export> export { get; set; }
 

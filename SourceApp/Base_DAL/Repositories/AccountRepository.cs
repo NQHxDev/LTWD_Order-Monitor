@@ -11,6 +11,23 @@ namespace Base_DAL.Repositories
     {
         private readonly OrderMonitor ConDatabase = new OrderMonitor();
 
+        public List<account> GetAllAccounts()
+        {
+            return ConDatabase.account.ToList();
+        }
+
+        public void Add_Account(account newAccount)
+        {
+            ConDatabase.account.Add(newAccount);
+            ConDatabase.SaveChanges();
+        }
+
+        public void UpdateAccount(account acc)
+        {
+            ConDatabase.Entry(acc).State = System.Data.Entity.EntityState.Modified;
+            ConDatabase.SaveChanges();
+        }
+
         public account GetAccountLogin(string username, string password)
         {
             return ConDatabase.account.FirstOrDefault(acc => acc.username == username && acc.password == password);
