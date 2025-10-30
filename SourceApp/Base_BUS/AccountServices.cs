@@ -36,6 +36,43 @@ namespace Base_BUS
             accountRepo = new AccountRepository();
         }
 
+        public List<account> GetAllAccounts()
+        {
+            return accountRepo.GetAllAccounts();
+        }
+
+        public void AddNewAccount(account newAccount)
+        {
+            accountRepo.Add_Account(newAccount);
+        }
+
+        public bool CheckUsername(string username)
+        {
+            var allAccounts = accountRepo.GetAllAccounts();
+            return allAccounts.Any(acc => acc.username == username);
+        }
+
+        public void UpdatePassword(int accountId, string newPassword)
+        {
+            var account = accountRepo.GetAccountById(accountId);
+            if (account != null)
+            {
+                account.password = newPassword;
+                accountRepo.UpdateAccount(account);
+            }
+        }
+
+        public void UpdateStatus(int accountId, int newStatus, string txtReason)
+        {
+            var account = accountRepo.GetAccountById(accountId);
+            if (account != null)
+            {
+                account.acc_status = newStatus;
+                account.reason = txtReason;
+                accountRepo.UpdateAccount(account);
+            }
+        }
+
         public string GetNameUser(int? accountId)
         {
             var account = accountRepo.GetAccountById(accountId);

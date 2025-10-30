@@ -99,6 +99,14 @@ namespace Order_Monitor.ListControl
 
             if (userLogin != null)
             {
+                if (userLogin.acc_status == -1)
+                {
+                    MessageBox.Show("Tài khoản đã bị cấm - Không thể đăng nhập !",
+                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    OnLoginAttempt?.Invoke(userLogin, false);
+                    return;
+                }
+
                 bool isValidRole = CheckUserRole(userLogin);
 
                 if (isValidRole)
@@ -130,6 +138,5 @@ namespace Order_Monitor.ListControl
 
             return userLogin.role == RequiredRole;
         }
-
     }
 }
