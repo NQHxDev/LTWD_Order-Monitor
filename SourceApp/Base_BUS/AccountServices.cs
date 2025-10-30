@@ -62,12 +62,13 @@ namespace Base_BUS
             }
         }
 
-        public void UpdateStatus(int accountId, int newStatus)
+        public void UpdateStatus(int accountId, int newStatus, string txtReason)
         {
             var account = accountRepo.GetAccountById(accountId);
             if (account != null)
             {
                 account.acc_status = newStatus;
+                account.reason = txtReason;
                 accountRepo.UpdateAccount(account);
             }
         }
