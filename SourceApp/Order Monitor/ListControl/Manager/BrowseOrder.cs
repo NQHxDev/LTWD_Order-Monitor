@@ -116,7 +116,6 @@ namespace Order_Monitor.ListControl.Manager
                 Panel1MinSize = 31
             };
 
-            // --- Panel thống kê (bên trái) ---
             Panel statPanel = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -127,54 +126,39 @@ namespace Order_Monitor.ListControl.Manager
             FlowLayoutPanel statCards = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.TopDown, // hiển thị theo hàng dọc
+                FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
                 AutoScroll = true
             };
 
-            using (var db = new OrderMonitor())
-            {
-                int pendingCount = db.import.Count(x => x.import_status == 0);
-                int approvedToday = db.import.Count(x => x.import_status == 1 && DbFunctions.TruncateTime(x.create_at) == DateTime.Today);
-                int rejectedToday = db.import.Count(x => x.import_status == 2 && DbFunctions.TruncateTime(x.create_at) == DateTime.Today);
+            var stats = DepotServices.Instance.GetImportStatistics();
 
-                statCards.Controls.Add(CreateStatCard("Đơn chờ duyệt", pendingCount, Color.Orange));
-                statCards.Controls.Add(CreateStatCard("Đơn đã duyệt hôm nay", approvedToday, Color.Green));
-                statCards.Controls.Add(CreateStatCard("Đơn bị từ chối hôm nay", rejectedToday, Color.Red));
-            }
-
+            statCards.Controls.Add(CreateStatCard("Đơn chờ duyệt", stats.pending, Color.Orange));
+            statCards.Controls.Add(CreateStatCard("Đơn đã duyệt hôm nay", stats.approvedToday, Color.Green));
+            statCards.Controls.Add(CreateStatCard("Đơn bị từ chối hôm nay", stats.rejectedToday, Color.Red));
+            
             statPanel.Controls.Add(statCards);
 
-            // --- Panel danh sách đơn hàng (bên phải của leftSplit) ---
             FlowLayoutPanel orderListPanel = new FlowLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 AutoScroll = true,
-                FlowDirection = FlowDirection.TopDown,
+                FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = false,
                 Padding = new Padding(10),
                 BackColor = Color.FromArgb(45, 45, 45)
             };
 
-            using (var db = new OrderMonitor())
-            {
-                var orders = db.import
-                    .Include(i => i.account)
-                    .Where(x => x.import_status == 0)
-                    .OrderByDescending(x => x.create_at)
-                    .ToList();
+            var orders = DepotServices.Instance.GetListOrderImportUnconfirmed();
 
-                foreach (var order in orders)
-                {
-                    orderListPanel.Controls.Add(CreateOrderCard(order, rightPanel));
-                }
+            foreach (var order in orders)
+            {
+                orderListPanel.Controls.Add(CreateOrderCard(order, rightPanel));
             }
 
-            // Gán panel vào SplitContainer trái
             leftSplit.Panel1.Controls.Add(statPanel);
             leftSplit.Panel2.Controls.Add(orderListPanel);
 
-            // === Khối phải ===
             Label placeholder = new Label
             {
                 Text = "Chọn một đơn hàng để xem chi tiết",
@@ -295,193 +279,184 @@ namespace Order_Monitor.ListControl.Manager
         {
             rightPanel.Controls.Clear();
 
-            using (var db = new OrderMonitor())
+            var order = DepotServices.Instance.GetImportByIDWithDetails(importId);
+
+            if (order == null) return;
+
+            Label lblHeader = new Label
             {
-                var order = db.import
-                              .Include(i => i.account)
-                              .Include(i => i.import_detail.Select(d => d.item))
-                              .FirstOrDefault(i => i.import_id == importId);
+                Text = $"Chi tiết Đơn hàng #{order.import_id}",
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                Dock = DockStyle.Top,
+                Height = 40
+            };
 
-                if (order == null) return;
+            Panel infoPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 110,
+                Padding = new Padding(10),
+                BackColor = Color.FromArgb(55, 55, 55)
+            };
 
-                Label lblHeader = new Label
-                {
-                    Text = $"Chi tiết Đơn hàng #{order.import_id}",
-                    ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                    Dock = DockStyle.Top,
-                    Height = 40
-                };
-
-                // === Khối thông tin tổng quan ===
-                Panel infoPanel = new Panel
-                {
-                    Dock = DockStyle.Top,
-                    Height = 110,
-                    Padding = new Padding(10),
-                    BackColor = Color.FromArgb(55, 55, 55)
-                };
-
-                string statusText;
-                switch (order.import_status)
-                {
-                    case -1:
-                        statusText = "❌ Từ chối";
-                        break;
-                    case 0:
-                        statusText = "⏳ Chờ duyệt";
-                        break;
-                    case 1:
-                        statusText = "⏳ Chờ nhập kho";
-                        break;
-                    case 2:
-                        statusText = "✅ Đã hoàn thành";
-                        break;
-                    default:
-                        statusText = "Không xác định";
-                        break;
-                }
-
-                Color statusColor;
-                switch (order.import_status)
-                {
-                    case -1:
-                        statusColor = Color.Red;
-                        break;
-                    case 0:
-                    case 1:
-                        statusColor = Color.Orange;
-                        break;
-                    case 2:
-                        statusColor = Color.LimeGreen;
-                        break;
-                    default:
-                        statusColor = Color.Gray;
-                        break;
-                }
-
-                Label lblInfo = new Label
-                {
-                    Dock = DockStyle.Fill,
-                    ForeColor = Color.White,
-                    Font = new Font("Segoe UI", 10),
-                    Text =
-                        $"👤 Người đặt: {order.account?.name ?? "Không rõ"}\n" +
-                        $"📦 Trạng thái: ",
-                    AutoSize = false
-                };
-
-                Label lblStatus = new Label
-                {
-                    Text = statusText,
-                    ForeColor = statusColor,
-                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                    Location = new Point(120, 28),
-                    AutoSize = true
-                };
-
-                Label lblDates = new Label
-                {
-                    Dock = DockStyle.Bottom,
-                    ForeColor = Color.LightGray,
-                    Font = new Font("Segoe UI", 9, FontStyle.Italic),
-                    Height = 40,
-                    Text =
-                        $"🕒 Ngày tạo: {order.create_at?.ToString("dd/MM/yyyy HH:mm") ?? "N/A"}\n" +
-                        $"🗓️ Cập nhật gần nhất: {order.update_at?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa có"}"
-                };
-
-                infoPanel.Controls.Add(lblDates);
-                infoPanel.Controls.Add(lblStatus);
-                infoPanel.Controls.Add(lblInfo);
-
-                ListView listView = new ListView
-                {
-                    Dock = DockStyle.Top,
-                    Height = 220,
-                    View = View.Details,
-                    FullRowSelect = true,
-                    BackColor = Color.FromArgb(60, 60, 60),
-                    Enabled = false
-                };
-
-                listView.Columns.Add("Tên Nguyên liệu", 180);
-                listView.Columns.Add("Số lượng", 100);
-                listView.Columns.Add("Đơn vị", 50);
-
-                foreach (var detail in order.import_detail)
-                {
-                    listView.Items.Add(new ListViewItem(new[]
-                    {
-                detail.item.name,
-                detail.quantity.ToString(),
-                detail.item.unit?.abbreviation ?? "N/A"
-            }));
-                }
-
-                // === Nút hành động ===
-                FlowLayoutPanel buttonPanel = new FlowLayoutPanel
-                {
-                    Dock = DockStyle.Bottom,
-                    Height = 60,
-                    FlowDirection = FlowDirection.LeftToRight,
-                    Padding = new Padding(10)
-                };
-
-                Button btnApprove = new Button
-                {
-                    Text = "Duyệt đơn",
-                    BackColor = Color.Green,
-                    ForeColor = Color.White,
-                    Width = 100,
-                    Height = 35,
-                    FlatStyle = FlatStyle.Flat
-                };
-                btnApprove.Click += (s, e) =>
-                {
-                    order.import_status = 1;
-                    order.update_by = leader_ID;
-                    order.update_at = DateTime.Now;
-                    db.SaveChanges();
-
-                    MessageBox.Show("✅ Đã duyệt đơn hàng thành công!");
-                    LoadOrdersImport();
-                };
-
-                Button btnReject = new Button
-                {
-                    Text = "Từ chối đơn",
-                    BackColor = Color.Red,
-                    ForeColor = Color.White,
-                    Width = 100,
-                    Height = 35,
-                    FlatStyle = FlatStyle.Flat
-                };
-                btnReject.Click += (s, e) =>
-                {
-                    string reason = HandleRejectOrder(order.import_id);
-                    if (reason == null)
-                        return;
-
-                    order.import_status = 2;
-                    order.reason = reason;
-                    order.update_by = leader_ID;
-                    order.update_at = DateTime.Now;
-                    db.SaveChanges();
-
-                    MessageBox.Show("❌ Đã từ chối đơn hàng.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadOrdersImport();
-                };
-
-                buttonPanel.Controls.Add(btnApprove);
-                buttonPanel.Controls.Add(btnReject);
-
-                // === Thêm vào khối phải ===
-                rightPanel.Controls.Add(buttonPanel);
-                rightPanel.Controls.Add(listView);
-                rightPanel.Controls.Add(infoPanel);
-                rightPanel.Controls.Add(lblHeader);
+            string statusText;
+            switch (order.import_status)
+            {
+                case -1:
+                    statusText = "❌ Từ chối";
+                    break;
+                case 0:
+                    statusText = "⏳ Chờ duyệt";
+                    break;
+                case 1:
+                    statusText = "⏳ Chờ nhập kho";
+                    break;
+                case 2:
+                    statusText = "✅ Đã hoàn thành";
+                    break;
+                default:
+                    statusText = "Không xác định";
+                    break;
             }
+
+            Color statusColor;
+            switch (order.import_status)
+            {
+                case -1:
+                    statusColor = Color.Red;
+                    break;
+                case 0:
+                case 1:
+                    statusColor = Color.Orange;
+                    break;
+                case 2:
+                    statusColor = Color.LimeGreen;
+                    break;
+                default:
+                    statusColor = Color.Gray;
+                    break;
+            }
+
+            Label lblInfo = new Label
+            {
+                Dock = DockStyle.Fill,
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10),
+                Text =
+                    $"👤 Người đặt: {order.account?.name ?? "Không rõ"}\n" +
+                    $"📦 Trạng thái: ",
+                AutoSize = false
+            };
+
+            Label lblStatus = new Label
+            {
+                Text = statusText,
+                ForeColor = statusColor,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Location = new Point(120, 28),
+                AutoSize = true
+            };
+
+            Label lblDates = new Label
+            {
+                Dock = DockStyle.Bottom,
+                ForeColor = Color.LightGray,
+                Font = new Font("Segoe UI", 9, FontStyle.Italic),
+                Height = 40,
+                Text =
+                    $"🕒 Ngày tạo: {order.create_at?.ToString("dd/MM/yyyy HH:mm") ?? "N/A"}\n" +
+                    $"🗓️ Cập nhật gần nhất: {order.update_at?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa có"}"
+            };
+
+            infoPanel.Controls.Add(lblDates);
+            infoPanel.Controls.Add(lblStatus);
+            infoPanel.Controls.Add(lblInfo);
+
+            ListView listView = new ListView
+            {
+                Dock = DockStyle.Top,
+                Height = 220,
+                View = View.Details,
+                FullRowSelect = true,
+                BackColor = Color.FromArgb(60, 60, 60),
+                Enabled = false
+            };
+
+            listView.Columns.Add("Tên Nguyên liệu", 180);
+            listView.Columns.Add("Số lượng", 100);
+            listView.Columns.Add("Đơn vị", 50);
+
+            foreach (var detail in order.import_detail)
+            {
+                listView.Items.Add(new ListViewItem(new[]
+                {
+                    detail.item.name,
+                    detail.quantity.ToString(),
+                    detail.item.unit?.abbreviation ?? "N/A"
+                }));
+            }
+
+            FlowLayoutPanel buttonPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 60,
+                FlowDirection = FlowDirection.LeftToRight,
+                Padding = new Padding(10)
+            };
+
+            Button btnApprove = new Button
+            {
+                Text = "Duyệt đơn",
+                BackColor = Color.Green,
+                ForeColor = Color.White,
+                Width = 100,
+                Height = 35,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnApprove.Click += (s, e) =>
+            {
+                order.import_status = 1;
+                order.update_by = leader_ID;
+                order.update_at = DateTime.Now;
+                DepotServices.Instance.UpdateImportOrder(order);
+
+                MessageBox.Show("✅ Đã duyệt đơn hàng thành công!");
+                LoadOrdersImport();
+            };
+
+            Button btnReject = new Button
+            {
+                Text = "Từ chối đơn",
+                BackColor = Color.Red,
+                ForeColor = Color.White,
+                Width = 100,
+                Height = 35,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnReject.Click += (s, e) =>
+            {
+                string reason = HandleRejectOrder(order.import_id);
+                if (reason == null)
+                    return;
+
+                order.import_status = 2;
+                order.reason = reason;
+                order.update_by = leader_ID;
+                order.update_at = DateTime.Now;
+                DepotServices.Instance.UpdateImportOrder(order);
+
+                MessageBox.Show("❌ Đã từ chối đơn hàng.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadOrdersImport();
+            };
+
+            buttonPanel.Controls.Add(btnApprove);
+            buttonPanel.Controls.Add(btnReject);
+
+            rightPanel.Controls.Add(buttonPanel);
+            rightPanel.Controls.Add(listView);
+            rightPanel.Controls.Add(infoPanel);
+            rightPanel.Controls.Add(lblHeader);
         }
 
         private string HandleRejectOrder(int importId)

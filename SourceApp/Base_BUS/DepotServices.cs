@@ -1,6 +1,8 @@
 ﻿using Base_DAL.ContextDatabase;
+using Base_DAL.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ namespace Base_BUS
 {
     public class DepotServices
     {
+        private readonly DepotRepository depotRepo;
         private static DepotServices _instance;
 
         public static DepotServices Instance
@@ -23,6 +26,7 @@ namespace Base_BUS
 
         private DepotServices()
         {
+            depotRepo = new DepotRepository();
         }
 
         public class DepotOrderItem
@@ -39,6 +43,19 @@ namespace Base_BUS
             using (var contextDB = new OrderMonitor())
             {
                 return contextDB.import.Include("account").FirstOrDefault(i => i.import_id == orderImportID);
+            }
+        }
+
+        public import GetImportByIDWithDetails(int orderImportID)
+        {
+            using (var contextDB = new OrderMonitor())
+            {
+                return contextDB.import
+                    .Include("account")
+                    .Include("import_detail")
+                    .Include("import_detail.item")
+                    .Include("import_detail.item.unit")
+                    .FirstOrDefault(i => i.import_id == orderImportID);
             }
         }
 
@@ -115,6 +132,27 @@ namespace Base_BUS
             }
         }
 
+        public void UpdateImportOrder(import importOrder)
+        {
+            if (importOrder == null)
+                return;
+            depotRepo.UpdateImport(importOrder);
+        }
+
+        public (int pending, int approvedToday, int rejectedToday) GetImportStatistics()
+        {
+            using (var db = new OrderMonitor())
+            {
+                var pending = db.import.Count(x => x.import_status == 0);
+                var approvedToday = db.import.Count(x => x.import_status == 1
+                                        && DbFunctions.TruncateTime(x.create_at) == DateTime.Today);
+                var rejectedToday = db.import.Count(x => x.import_status == 2
+                                        && DbFunctions.TruncateTime(x.create_at) == DateTime.Today);
+
+                return (pending, approvedToday, rejectedToday);
+            }
+        }
+
         public List<depot> GetListItemDepot()
         {
             var listItem = new List<depot>();
@@ -131,6 +169,20 @@ namespace Base_BUS
             using (var conDatabase = new OrderMonitor())
             {
                 listOrderImport = conDatabase.import.OrderByDescending(i => i.import_id).ToList();
+            }
+            return listOrderImport;
+        }
+
+        public List<import> GetListOrderImportUnconfirmed()
+        {
+            var listOrderImport = new List<import>();
+            using (var conDatabase = new OrderMonitor())
+            {
+                listOrderImport = conDatabase.import
+                    .Include(i => i.account)
+                    .Where(x => x.import_status == 0)
+                    .OrderByDescending(x => x.create_at)
+                    .ToList();
             }
             return listOrderImport;
         }
