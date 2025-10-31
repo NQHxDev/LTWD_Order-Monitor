@@ -390,7 +390,7 @@ namespace Order_Monitor.ListControl
         {
             try
             {
-                var pendingOrders = FoodServices.Instance.GetOrdersByStatus(0);
+                var pendingOrders = OrderServices.Instance.GetOrdersByStatus(0);
 
                 foreach (var orderJson in pendingOrders)
                 {

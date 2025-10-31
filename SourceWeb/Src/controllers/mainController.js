@@ -21,7 +21,7 @@ export const getListFood = async (req, res) => {
 
       if (!foods) {
          foods = await connect.executeQuery(`
-            SELECT 
+            SELECT
                food_id AS id,
                name,
                status,
@@ -72,9 +72,9 @@ export const postListFood = async (req, res) => {
 
       // Tạo đơn hàng mới
       const queryOrder = `
-         INSERT INTO list_order (customer_name, note, total_price, status, customer_phone)
+         INSERT INTO list_order (customer_name, note, total_price, status, customer_phone, count_food)
          OUTPUT INSERTED.oder_id
-         VALUES (@customer_name, @note, @total_price, @status, @customer_phone)
+         VALUES (@customer_name, @note, @total_price, @status, @customer_phone, ${cart.length})
       `;
 
       const requestOrder = new connect.sql.Request(transaction);

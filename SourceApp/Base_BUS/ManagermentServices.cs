@@ -44,6 +44,13 @@ namespace Base_BUS
             return new SalesSummary { Total = total, DayStart = start, DayEnd = end };
         }
 
+        public SalesSummary GetSalesOneHour()
+        {
+            var end = DateTime.Now;
+            var start = end.AddHours(-1);
+            return GetSalesFoods(start, end);
+        }
+
         public SalesSummary GetSalesToday()
         {
             var today = DateTime.Now.Date;

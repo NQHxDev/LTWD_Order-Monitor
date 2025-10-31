@@ -23,13 +23,6 @@ namespace Order_Monitor.ListControl.Manager
         public ViewDepot(int leaderID)
         {
             InitializeComponent();
-            Label titleLabel = new Label();
-            titleLabel.Font = new Font("Tahoma", 16, FontStyle.Bold);
-            titleLabel.ForeColor = Color.White;
-            titleLabel.Height = 50;
-            titleLabel.Dock = DockStyle.Top;
-            titleLabel.TextAlign = ContentAlignment.MiddleCenter;
-            this.Controls.Add(titleLabel);
 
             // Main Container
             mainContainer = new Panel();
