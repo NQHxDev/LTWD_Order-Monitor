@@ -148,7 +148,6 @@ namespace Order_Monitor.ListControl
                 string foodName = FoodServices.Instance.GetFoodName(foodID);
                 int qty = (int)item["quantity"];
                 int price = (int)item["price"];
-                //int total = price * qty;
 
                 Panel itemPanel = new Panel();
                 itemPanel.Width = 270;
@@ -298,16 +297,6 @@ namespace Order_Monitor.ListControl
                     FlatStyle = FlatStyle.Flat
                 };
 
-                var btnCancel = new Button()
-                {
-                    Text = "Hủy",
-                    Location = new Point(285, 120),
-                    Size = new Size(75, 30),
-                    BackColor = Color.FromArgb(108, 117, 125),
-                    ForeColor = Color.White,
-                    FlatStyle = FlatStyle.Flat
-                };
-
                 btnOK.Click += (s, e) =>
                 {
                     if (string.IsNullOrWhiteSpace(txtReason.Text))
@@ -319,15 +308,12 @@ namespace Order_Monitor.ListControl
                     dialog.DialogResult = DialogResult.OK;
                 };
 
-                btnCancel.Click += (s, e) => { dialog.DialogResult = DialogResult.Cancel; };
-
                 dialog.Controls.AddRange(new Control[] {
                     new Label() { Text = "Lý do hủy đơn:", Location = new Point(20, 20), Font = new Font("Segoe UI", 10) },
-                    txtReason, btnOK, btnCancel
+                    txtReason, btnOK
                 });
 
                 dialog.AcceptButton = btnOK;
-                dialog.CancelButton = btnCancel;
 
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
