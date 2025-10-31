@@ -30,6 +30,11 @@ namespace Base_DAL.ContextDatabase
 
         public int total_item { get; set; }
 
+        [StringLength(500)]
+        public string reason { get; set; }
+
+        public DateTime? update_at { get; set; }
+
         public virtual account account { get; set; }
 
         public virtual account account1 { get; set; }

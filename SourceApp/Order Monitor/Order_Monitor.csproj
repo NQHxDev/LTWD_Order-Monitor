@@ -227,12 +227,6 @@
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ListControl\Kho.resx">
-      <DependentUpon>Kho.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ListControl\OrderReceived.resx">
-      <DependentUpon>OrderReceived.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
