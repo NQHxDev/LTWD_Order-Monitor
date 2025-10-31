@@ -44,21 +44,5 @@ namespace Base_DAL.Repositories
                     .ToList();
             }
         }
-
-        public List<list_order> GetOrdersByStatus(int status)
-        {
-            using (var context = new OrderMonitor())
-            {
-                var query = context.list_order
-                    .Include(o => o.order_detail)
-                    .Include(o => o.order_detail.Select(od => od.food))
-                    .Where(o => o.status == status);
-
-                if (status == 1 || status == 2)
-                    query = query.OrderByDescending(o => o.updated_at);
-
-                return query.ToList();
-            }
-        }
     }
 }

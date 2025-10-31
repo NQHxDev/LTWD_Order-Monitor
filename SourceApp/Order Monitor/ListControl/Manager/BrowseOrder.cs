@@ -139,14 +139,17 @@ namespace Order_Monitor.ListControl.Manager
             
             statPanel.Controls.Add(statCards);
 
-            FlowLayoutPanel orderListPanel = new FlowLayoutPanel
+            TableLayoutPanel orderListPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 AutoScroll = true,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false,
+                BackColor = Color.FromArgb(45, 45, 45),
                 Padding = new Padding(10),
-                BackColor = Color.FromArgb(45, 45, 45)
+                ColumnCount = 3,
+                RowCount = 0,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None
             };
 
             var orders = DepotServices.Instance.GetListOrderImportUnconfirmed();
@@ -353,7 +356,7 @@ namespace Order_Monitor.ListControl.Manager
             {
                 Text = statusText,
                 ForeColor = statusColor,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
                 Location = new Point(120, 28),
                 AutoSize = true
             };
@@ -440,13 +443,13 @@ namespace Order_Monitor.ListControl.Manager
                 if (reason == null)
                     return;
 
-                order.import_status = 2;
+                order.import_status = -1;
                 order.reason = reason;
                 order.update_by = leader_ID;
                 order.update_at = DateTime.Now;
                 DepotServices.Instance.UpdateImportOrder(order);
 
-                MessageBox.Show("❌ Đã từ chối đơn hàng.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("❌ Đã từ chối đơn hàng", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadOrdersImport();
             };
 

@@ -59,47 +59,6 @@ namespace Base_BUS
             }
         }
 
-        public List<JObject> GetOrdersByStatus(int status)
-        {
-            var result = new List<JObject>();
-            try
-            {
-                var orders = _repo.GetOrdersByStatus(status);
-
-                foreach (var order in orders)
-                {
-                    var cartArray = new JArray();
-                    foreach (var detail in order.order_detail)
-                    {
-                        cartArray.Add(new JObject
-                        {
-                            ["id"] = detail.food_id,
-                            ["name"] = GetFoodName(detail.food_id),
-                            ["quantity"] = detail.quantity,
-                            ["price"] = (int)detail.price
-                        });
-                    }
-
-                    var orderJson = new JObject
-                    {
-                        ["orderId"] = order.oder_id,
-                        ["customer_name"] = order.customer_name ?? "Khách lạ",
-                        ["cart"] = cartArray,
-                        ["status"] = order.status,
-                        ["total_price"] = order.total_price
-                    };
-
-                    result.Add(orderJson);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.IO.File.AppendAllText("ws_log.txt", $"[{DateTime.Now}] GetOrdersByStatus({status}) error: {ex.Message}\n");
-            }
-
-            return result;
-        }
-
         public string GetFoodName(int foodID)
         {
             return Foods.ContainsKey(foodID) ? Foods[foodID].name : $"Món ID: {foodID}";

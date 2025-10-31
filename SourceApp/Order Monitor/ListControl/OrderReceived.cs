@@ -82,7 +82,7 @@ namespace Order_Monitor.ListControl
         {
             try
             {
-                var completedOrders = FoodServices.Instance.GetOrdersByStatus(1);
+                var completedOrders = OrderServices.Instance.GetOrdersByStatus(1);
 
                 foreach (var order in completedOrders)
                 {

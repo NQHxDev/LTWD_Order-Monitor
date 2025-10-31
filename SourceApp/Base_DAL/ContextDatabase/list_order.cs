@@ -35,6 +35,8 @@ namespace Base_DAL.ContextDatabase
 
         public string staff_feedback { get; set; }
 
+        public int count_food { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<order_detail> order_detail { get; set; }
     }

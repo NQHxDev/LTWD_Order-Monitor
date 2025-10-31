@@ -50,7 +50,7 @@ namespace Order_Monitor.ListControl
         {
             flowPanel.Controls.Clear();
 
-            var orders = FoodServices.Instance.GetOrdersByStatus(1);
+            var orders = OrderServices.Instance.GetOrdersByStatus(1);
 
             foreach (var order in orders)
             {
