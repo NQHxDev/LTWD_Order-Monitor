@@ -120,6 +120,11 @@ namespace Order_Monitor.ListControl
                     statusTextButtom = "Nhập kho";
                     statusColor = Color.FromArgb(0, 122, 204);
                 }
+                else if (orderImport.import_status == -1)
+                {
+                    statusTextButtom = "Bị từ chối";
+                    statusColor = Color.FromArgb(255, 204, 204);
+                }
 
                 Panel card = new Panel()
                 {

@@ -146,7 +146,7 @@ namespace Base_BUS
                 var pending = db.import.Count(x => x.import_status == 0);
                 var approvedToday = db.import.Count(x => x.import_status == 1
                                         && DbFunctions.TruncateTime(x.create_at) == DateTime.Today);
-                var rejectedToday = db.import.Count(x => x.import_status == 2
+                var rejectedToday = db.import.Count(x => x.import_status == -1
                                         && DbFunctions.TruncateTime(x.create_at) == DateTime.Today);
 
                 return (pending, approvedToday, rejectedToday);
